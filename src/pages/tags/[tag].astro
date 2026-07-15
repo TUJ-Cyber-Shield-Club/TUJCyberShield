@@ -1,0 +1,77 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { collectTags, getPublishedArticles, withBase } from '../../utils/articles';
+
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+  return collectTags(articles).map((tag) => ({
+    params: { tag },
+    props: { tagged: articles.filter((a) => a.data.tags.includes(tag)) },
+  }));
+}
+
+const { tag } = Astro.params;
+const { tagged } = Astro.props;
+const allTags = collectTags(await getPublishedArticles());
+---
+
+<Base
+  title={`Articles tagged “${tag}” · Cyber Shield`}
+  description={`All Cyber Shield articles about ${tag} — practical, plain-language advice for students.`}
+>
+  <p class="flank">Topic</p>
+  <h1>{tag}</h1>
+  <p class="intro meta">
+    {tagged.length} article{tagged.length === 1 ? '' : 's'} on this topic.
+  </p>
+
+  <nav class="tag-filter" aria-label="Filter by tag">
+    <ul class="chips">
+      <li style="display:contents">
+        <a class="chip" href={withBase('/articles/')}>all</a>
+      </li>
+      {
+        allTags.map((other) => (
+          <li style="display:contents">
+            <a
+              class="chip"
+              href={withBase(`/tags/${other}/`)}
+              aria-current={other === tag ? 'true' : undefined}
+            >
+              {other}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <ul class="card-grid">
+    {tagged.map((article) => <ArticleCard article={article} headingLevel="h2" />)}
+  </ul>
+</Base>
+
+<style>
+  h1 {
+    margin-top: 0.75rem;
+    text-transform: capitalize;
+  }
+
+  .intro {
+    margin-top: 0.5rem;
+  }
+
+  .tag-filter {
+    margin-block: 1.5rem 2rem;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>

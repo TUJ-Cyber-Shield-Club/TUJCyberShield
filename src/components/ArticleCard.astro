@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets';
+import { formatDate, readingTime, withBase, type Article } from '../utils/articles';
+
+interface Props {
+  article: Article;
+  /** Heading level for the card title, so lists keep a sane outline. */
+  headingLevel?: 'h2' | 'h3';
+  eager?: boolean;
+}
+
+const { article, headingLevel: Heading = 'h3', eager = false } = Astro.props;
+const { title, description, pubDate, authors, tags, coverImage, coverAlt, draft } = article.data;
+const url = withBase(`/articles/${article.id}/`);
+const minutes = readingTime(article.body);
+---
+
+<li class="card">
+  {
+    coverImage && (
+      <div class="card-cover">
+        <Image
+          src={coverImage}
+          alt={coverAlt ?? ''}
+          width="640"
+          height="336"
+          loading={eager ? 'eager' : 'lazy'}
+        />
+      </div>
+    )
+  }
+  {
+    tags.length > 0 && (
+      <ul class="chips" aria-label="Tags">
+        {tags.map((tag) => (
+          <li style="display:contents">
+            <a class="chip" href={withBase(`/tags/${tag}/`)}>
+              {tag}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  <Heading>
+    <a href={url}>{title}{draft && ' (draft preview)'}</a>
+  </Heading>
+  <p>{description}</p>
+  <p class="meta">
+    <b>{authors.join(', ')}</b> ·{' '}
+    <time datetime={pubDate.toISOString().slice(0, 10)}>{formatDate(pubDate)}</time> · {minutes} min
+    read
+  </p>
+</li>

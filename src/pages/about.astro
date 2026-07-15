@@ -1,0 +1,109 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import logo from '../assets/logo.png';
+import { withBase } from '../utils/articles';
+---
+
+<Base
+  title="About the club · Cyber Shield"
+  description="Cyber Shield is TUJ's digital-safety club: students translating real security research into plain-language advice anyone can use."
+>
+  <div class="about">
+    <header class="masthead">
+      <p class="flank flank--center">About the club</p>
+      <h1>Security research, translated for everyone.</h1>
+    </header>
+
+    <div class="logo-plate">
+      <Image
+        src={logo}
+        alt="The full TUJ Cyber Shield Club crest: an owl holding a padlock on a teal shield above the club wordmark"
+        width="360"
+        loading="eager"
+      />
+    </div>
+
+    <div class="prose">
+      <p>
+        Cyber Shield aims to cultivate a community of students passionate about digital safety and
+        cybersecurity awareness. We provide an inclusive space for researching modern threats,
+        analyzing real-world vulnerabilities, and translating complex security topics into
+        accessible, actionable advice. Through collaborative research, guest speakers, and our
+        monthly publications, members help everyday students harden their digital lives without
+        needing a technical background.
+      </p>
+      <p>
+        Our activities welcome all skill levels and backgrounds, though we are always excited to
+        connect with students who have a passion for deep technical research or a talent for
+        writing and communication — fostering a culture of curiosity, critical thinking, and
+        community-driven protection.
+      </p>
+
+      <h2>How we're different from Cyber Owls</h2>
+      <p>
+        TUJ already has a great technical hacking club — the Cyber Owls — where students practice
+        offensive security, capture-the-flag competitions, and hands-on tooling. Cyber Shield is
+        the other half of the picture: we're a <strong>publication</strong>, not a lab. Our job is
+        to take what security researchers (including Cyber Owls members!) discover and turn it into
+        clear, friendly advice that a first-year business or arts student can act on the same day.
+        If you want to break things, join Cyber Owls. If you want to help people protect
+        themselves — and get real bylines doing it — you're in the right place.
+      </p>
+
+      <h2>What members actually do</h2>
+      <ul>
+        <li><strong>Research</strong> — track current scams, breaches, and threats affecting students.</li>
+        <li><strong>Write</strong> — turn that research into short, jargon-free monthly articles.</li>
+        <li><strong>Edit</strong> — every article is peer-reviewed for accuracy and readability.</li>
+        <li><strong>Learn</strong> — guest speakers and workshops, open to every skill level.</li>
+      </ul>
+
+      <h2>How to join</h2>
+      <!-- EDIT ME: replace the placeholders below with real contact details. -->
+      <p>
+        We'd love to have you — no application, no experience needed. Reach us at
+        <strong>cybershield@example.edu</strong> (placeholder — update this), find us on the TUJ
+        student-club portal, or drop by our weekly meeting: <strong>Thursdays, 5:00 p.m., Room
+        TBD</strong> (placeholder — update this). Bring a laptop if you have one; curiosity is the
+        only requirement.
+      </p>
+
+      <p>
+        Prefer to start by reading? <a href={withBase('/articles/')}>Browse our articles</a> or
+        subscribe to the <a href={withBase('/rss.xml')}>RSS feed</a>.
+      </p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .about {
+    max-width: 46rem;
+    margin-inline: auto;
+  }
+
+  .masthead {
+    text-align: center;
+  }
+
+  .masthead h1 {
+    font-size: clamp(1.9rem, 5vw, 2.8rem);
+    margin-top: 1rem;
+  }
+
+  /* The full crest keeps its white wordmark readable via an ink plate. */
+  .logo-plate {
+    display: grid;
+    place-items: center;
+    margin-block: 2.25rem;
+    padding: 2rem 1rem;
+    background: var(--ink);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+  }
+
+  .prose {
+    margin-inline: auto;
+  }
+</style>

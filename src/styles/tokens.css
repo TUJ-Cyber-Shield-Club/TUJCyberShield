@@ -1,0 +1,82 @@
+/* ---------------------------------------------------------------------------
+   Cyber Shield design tokens
+
+   Brand palette (named before any component was written):
+     ink    #10202F  deep navy — page base in dark, text in light
+     paper  #F6F8F7  cool off-white — page base in light
+     teal   #0E7C7C  security accent, taken from the club shield (AA on paper)
+     glow   #4CC8C4  the same accent tuned for dark backgrounds (AA on ink)
+     slate  #57697A  muted supporting text
+     mist   #D9E2E4  hairlines, chips, quiet surfaces
+
+   Type roles:
+     display — Bricolage Grotesque (headings, nav, labels, mastheads)
+     body    — Source Serif 4 (article prose at ~65ch)
+
+   Layout concept: quiet editorial pages; one signature element — the
+   "flanked label" masthead (a small caps label between two em-rules),
+   echoing the ruled wordmark under the club shield. Used for issue
+   headers, section labels, and the hero kicker. Everything else stays flat.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* brand */
+  --ink: #10202f;
+  --paper: #f6f8f7;
+  --teal: #0e7c7c;
+  --glow: #4cc8c4;
+  --slate: #57697a;
+  --mist: #d9e2e4;
+
+  /* type */
+  --font-display: 'Bricolage Grotesque Variable', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
+
+  /* semantic — light theme (default) */
+  color-scheme: light;
+  --bg: var(--paper);
+  --bg-raised: #ffffff;
+  --bg-inset: #e9efef;
+  --text: var(--ink);
+  --text-muted: #46596b;
+  --accent: var(--teal);
+  --accent-strong: #0a5e5e;
+  --accent-contrast: #ffffff;
+  --line: var(--mist);
+  --line-strong: #b9c9cc;
+  --shadow: 0 1px 2px rgb(16 32 47 / 0.06), 0 4px 16px rgb(16 32 47 / 0.06);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0d1b29;
+  --bg-raised: #14283a;
+  --bg-inset: #1a3145;
+  --text: #e8eff2;
+  --text-muted: #a3b6c4;
+  --accent: var(--glow);
+  --accent-strong: #7ededa;
+  --accent-contrast: #072a33;
+  --line: #24394c;
+  --line-strong: #38506a;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25);
+}
+
+/* System preference applies unless the visitor chose light explicitly.
+   Keep this block identical to [data-theme='dark'] above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0d1b29;
+    --bg-raised: #14283a;
+    --bg-inset: #1a3145;
+    --text: #e8eff2;
+    --text-muted: #a3b6c4;
+    --accent: var(--glow);
+    --accent-strong: #7ededa;
+    --accent-contrast: #072a33;
+    --line: #24394c;
+    --line-strong: #38506a;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25);
+  }
+}

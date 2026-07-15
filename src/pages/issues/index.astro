@@ -1,0 +1,116 @@
+---
+import Base from '../../layouts/Base.astro';
+import {
+  collectIssues,
+  formatDate,
+  getPublishedArticles,
+  issueLabel,
+  readingTime,
+  withBase,
+} from '../../utils/articles';
+
+const articles = await getPublishedArticles();
+const issues = collectIssues(articles);
+---
+
+<Base
+  title="Issue archive · Cyber Shield"
+  description="Every monthly issue of the Cyber Shield newsletter, from the latest back to the first."
+>
+  <h1>Issue archive</h1>
+  <p class="intro meta">
+    Cyber Shield publishes one issue a month. Here is every issue so far, newest first.
+  </p>
+
+  <div class="issues">
+    {
+      issues.map((issue) => {
+        const inIssue = articles.filter((a) => a.data.issue === issue);
+        return (
+          <section class="issue" aria-labelledby={`issue-${issue}`}>
+            <header class="issue-head">
+              <p class="flank" aria-hidden="true">Issue {issue}</p>
+              <h2 id={`issue-${issue}`}>
+                <a href={withBase(`/issues/${issue}/`)}>{issueLabel(issue)}</a>
+              </h2>
+              <p class="meta">
+                {inIssue.length} article{inIssue.length === 1 ? '' : 's'}
+              </p>
+            </header>
+            <ul>
+              {inIssue.map((article) => (
+                <li>
+                  <a href={withBase(`/articles/${article.id}/`)}>{article.data.title}</a>
+                  <p class="meta">
+                    {article.data.authors.join(', ')} · {formatDate(article.data.pubDate)} ·{' '}
+                    {readingTime(article.body)} min read
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })
+    }
+  </div>
+</Base>
+
+<style>
+  .intro {
+    margin-top: 0.5rem;
+  }
+
+  .issues {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.75rem;
+  }
+
+  .issue {
+    display: grid;
+    grid-template-columns: minmax(12rem, 16rem) 1fr;
+    gap: 1.5rem 3rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.75rem;
+  }
+
+  .issue-head h2 {
+    font-size: 1.6rem;
+    margin-top: 0.6rem;
+  }
+
+  .issue-head h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .issue-head h2 a:hover {
+    color: var(--accent-strong);
+  }
+
+  .issue-head .meta {
+    margin-top: 0.3rem;
+  }
+
+  .issue ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .issue ul a {
+    font-weight: 650;
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 44rem) {
+    .issue {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+  }
+</style>

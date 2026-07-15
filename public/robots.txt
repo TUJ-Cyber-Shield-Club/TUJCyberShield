@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tuj-cyber-shield-club.github.io/TUJ-Cyber-Shield-Club-Website/sitemap-index.xml

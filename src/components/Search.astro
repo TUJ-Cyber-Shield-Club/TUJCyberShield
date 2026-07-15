@@ -1,0 +1,80 @@
+---
+import { withBase } from '../utils/articles';
+
+// Pagefind's UI bundle is generated into dist/pagefind/ by the postbuild step,
+// so it only exists after `npm run build`. The loader below fails quietly in
+// `astro dev`, where the search box shows a short explanation instead.
+const pagefindBase = withBase('/pagefind');
+---
+
+<div class="search-block">
+  <label class="flank" for="search-box-input" id="search-label">Search articles</label>
+  <div id="search" data-base={pagefindBase}></div>
+  <noscript>
+    <p class="meta">Search needs JavaScript. No problem — every article is listed below.</p>
+  </noscript>
+</div>
+
+<script>
+  const container = document.getElementById('search');
+  if (container) {
+    const base = container.dataset.base;
+    const script = document.createElement('script');
+    script.src = `${base}/pagefind-ui.js`;
+    script.onload = () => {
+      // @ts-expect-error PagefindUI is provided by the script loaded above
+      new PagefindUI({
+        element: '#search',
+        showImages: false,
+        showSubResults: true,
+        translations: { placeholder: 'Search articles — try “phishing” or “passwords”' },
+      });
+      const input = container.querySelector('input');
+      if (input) input.id = 'search-box-input';
+    };
+    script.onerror = () => {
+      container.innerHTML =
+        '<p class="meta">Search will be available on the published site (the index is generated at build time).</p>';
+    };
+    document.head.append(script);
+
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = `${base}/pagefind-ui.css`;
+    document.head.append(css);
+  }
+</script>
+
+<style is:global>
+  .search-block {
+    max-width: 40rem;
+    margin-block: 1.5rem 2rem;
+  }
+
+  .search-block .flank {
+    margin-bottom: 0.75rem;
+  }
+
+  #search {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: var(--accent);
+    --pagefind-ui-text: var(--text);
+    --pagefind-ui-background: var(--bg-raised);
+    --pagefind-ui-border: var(--line-strong);
+    --pagefind-ui-tag: var(--bg-inset);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-font: var(--font-display);
+  }
+
+  #search .pagefind-ui__result-link {
+    color: var(--accent);
+  }
+
+  #search .pagefind-ui__result-excerpt mark {
+    background: var(--accent);
+    color: var(--accent-contrast);
+    border-radius: 2px;
+    padding-inline: 0.1em;
+  }
+</style>

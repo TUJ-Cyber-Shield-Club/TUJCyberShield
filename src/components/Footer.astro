@@ -1,0 +1,80 @@
+---
+import { withBase } from '../utils/articles';
+
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="wrap">
+    <p class="flank" aria-hidden="true">Cyber Shield</p>
+    <div class="cols">
+      <p class="blurb">
+        A student publication from the TUJ Cyber Shield Club — plain-language digital safety for
+        everyday students, one issue a month.
+      </p>
+      <nav aria-label="Footer">
+        <ul>
+          <li><a href={withBase('/articles/')}>Articles</a></li>
+          <li><a href={withBase('/issues/')}>Issues</a></li>
+          <li><a href={withBase('/about/')}>About the club</a></li>
+          <li><a href={withBase('/rss.xml')}>RSS feed</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="fine">© {year} TUJ Cyber Shield Club. Written by students, for students.</p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--line);
+    background: var(--bg-raised);
+    padding-block: 2.25rem 1.75rem;
+    margin-top: 3rem;
+  }
+
+  .flank::after {
+    flex: 1;
+  }
+
+  .cols {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+
+  .blurb {
+    max-width: 34rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  nav a {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: var(--accent-strong);
+    text-decoration: underline;
+  }
+
+  .fine {
+    margin-top: 1.75rem;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+  }
+</style>

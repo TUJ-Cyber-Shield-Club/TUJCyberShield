@@ -1,0 +1,144 @@
+---
+import { Image } from 'astro:assets';
+import shield from '../assets/logo-shield.png';
+import ThemeToggle from './ThemeToggle.astro';
+import { withBase } from '../utils/articles';
+
+const links = [
+  { href: withBase('/articles/'), label: 'Articles' },
+  { href: withBase('/issues/'), label: 'Issues' },
+  { href: withBase('/about/'), label: 'About' },
+];
+
+const current = Astro.url.pathname;
+const isCurrent = (href: string) => current === href || current.startsWith(`${href}`);
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href={withBase('/')}>
+      <span class="brand-chip">
+        <Image
+          src={shield}
+          alt="TUJ Cyber Shield club logo: an owl holding a padlock on a teal shield"
+          width="72"
+          height="72"
+          loading="eager"
+        />
+      </span>
+      <span class="brand-text">
+        <span class="brand-name">Cyber Shield</span>
+        <span class="brand-sub">TUJ student publication</span>
+      </span>
+    </a>
+
+    <nav aria-label="Site">
+      <ul>
+        {
+          links.map(({ href, label }) => (
+            <li>
+              <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>
+                {label}
+              </a>
+            </li>
+          ))
+        }
+        <li><ThemeToggle /></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-raised);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-block: 0.8rem;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* Quiet chip behind the shield so the mark reads on both themes. */
+  .brand-chip {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 10px;
+    background: var(--bg-inset);
+    border: 1px solid var(--line);
+  }
+
+  .brand-chip img {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+
+  .brand-name {
+    font-weight: 750;
+    font-size: 1.3rem;
+    letter-spacing: -0.01em;
+  }
+
+  .brand-sub {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .brand:hover .brand-name {
+    color: var(--accent-strong);
+  }
+
+  nav ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.25rem, 2vw, 0.75rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  nav a {
+    display: inline-block;
+    padding: 0.45rem 0.7rem;
+    border-radius: 6px;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: var(--accent-strong);
+    background: var(--bg-inset);
+  }
+
+  nav a[aria-current='page'] {
+    color: var(--accent);
+    box-shadow: inset 0 -2px 0 var(--accent);
+    border-radius: 6px 6px 0 0;
+  }
+</style>

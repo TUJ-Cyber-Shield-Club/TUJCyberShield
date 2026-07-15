@@ -1,0 +1,50 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import shield from '../assets/logo-shield.png';
+import { withBase } from '../utils/articles';
+---
+
+<Base
+  title="Page not found · Cyber Shield"
+  description="That page doesn't exist. Head back to the Cyber Shield home page or browse all articles."
+>
+  <div class="lost">
+    <Image src={shield} alt="" width="120" height="120" loading="eager" />
+    <p class="flank flank--center">404 — signal lost</p>
+    <h1>This page doesn't exist.</h1>
+    <p class="meta">
+      The link may be old, or the address may have a typo. (If someone sent you here, that's worth
+      a healthy dose of suspicion — we teach a whole article on that.)
+    </p>
+    <div class="cta">
+      <a class="button" href={withBase('/')}>Back to the home page</a>
+      <a class="button button--ghost" href={withBase('/articles/')}>Browse articles</a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .lost {
+    text-align: center;
+    max-width: 34rem;
+    margin-inline: auto;
+    padding-block: clamp(2rem, 8vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+  }
+
+  .cta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.75rem;
+  }
+</style>

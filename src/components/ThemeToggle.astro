@@ -1,0 +1,109 @@
+---
+// Progressive enhancement: the button ships hidden and is revealed by the
+// script below, so visitors without JavaScript never see a dead control.
+---
+
+<button id="theme-toggle" type="button" hidden aria-label="Switch between dark and light theme">
+  <svg
+    class="icon-moon"
+    aria-hidden="true"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+  <svg
+    class="icon-sun"
+    aria-hidden="true"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path
+      d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"
+    ></path>
+  </svg>
+</button>
+
+<script>
+  const button = document.getElementById('theme-toggle');
+  if (button) {
+    button.hidden = false;
+    button.addEventListener('click', () => {
+      const root = document.documentElement;
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const active = root.dataset.theme ?? (systemDark ? 'dark' : 'light');
+      const next = active === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        /* private mode: theme still applies for this page view */
+      }
+    });
+  }
+</script>
+
+<style>
+  /* `display: grid` would defeat the hidden attribute, so restate it. */
+  button[hidden] {
+    display: none;
+  }
+
+  button {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text);
+  }
+
+  button:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background: var(--bg-inset);
+  }
+
+  /* Show the icon for the theme you would switch TO. */
+  .icon-moon {
+    display: block;
+  }
+
+  .icon-sun {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .icon-moon {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .icon-sun {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .icon-moon {
+      display: none;
+    }
+
+    :global(:root:not([data-theme='light'])) .icon-sun {
+      display: block;
+    }
+  }
+</style>

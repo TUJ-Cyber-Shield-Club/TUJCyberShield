@@ -1,0 +1,61 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { collectIssues, getPublishedArticles, issueLabel, withBase } from '../../utils/articles';
+
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+  return collectIssues(articles).map((issue) => ({
+    params: { issue },
+    props: { inIssue: articles.filter((a) => a.data.issue === issue) },
+  }));
+}
+
+const { issue } = Astro.params;
+const { inIssue } = Astro.props;
+const label = issueLabel(issue!);
+---
+
+<Base
+  title={`${label} issue · Cyber Shield`}
+  description={`All ${inIssue.length} articles from the ${label} issue of Cyber Shield, TUJ's plain-language digital safety newsletter.`}
+>
+  <header class="masthead">
+    <p class="flank flank--center">Cyber Shield · Issue {issue}</p>
+    <h1>The {label} issue</h1>
+    <p class="lede meta">
+      {inIssue.length} article{inIssue.length === 1 ? '' : 's'} researched, written, and edited by
+      club members.
+    </p>
+  </header>
+
+  <ul class="card-grid">
+    {inIssue.map((article, i) => <ArticleCard article={article} headingLevel="h2" eager={i === 0} />)}
+  </ul>
+
+  <p class="back">
+    <a href={withBase('/issues/')}>← All issues</a>
+  </p>
+</Base>
+
+<style>
+  .masthead {
+    text-align: center;
+    max-width: 42rem;
+    margin: 0 auto 2.5rem;
+  }
+
+  .masthead h1 {
+    font-size: clamp(2rem, 5.5vw, 3rem);
+    margin-top: 1rem;
+  }
+
+  .lede {
+    margin-top: 0.7rem;
+  }
+
+  .back {
+    margin-top: 2.25rem;
+    font-weight: 600;
+  }
+</style>
