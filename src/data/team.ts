@@ -66,7 +66,7 @@ export const team: TeamMember[] = [
   },
   {
     name: 'Bhushith Gujjala Hari',
-    role: 'Member',
+    role: 'Writer',
     bio: "Hello, I'm a passionate computer science student who is interested in Machine Learning and Game Development. I am also the leader of the CS Society and help organize hackathons and other events. I am currently in my fourth year Computer Science major with experience from multiple solo projects, 2 research projects in Machine Learning, and two internships. Outside of work and University, I love to make pixel art and code games as a hobby.",
     avatar: bhushithGujjalaHari,
     links: [
