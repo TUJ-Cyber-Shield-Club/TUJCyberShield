@@ -60,9 +60,12 @@ export const team: TeamMember[] = [
   {
     name: 'Uchida Terence',
     role: 'Researcher',
-    bio: 'Always curious',
+    bio: "Hi, Terence here, a third year Computer Science major at TUJ. Currently, doing an intern at a HK startup and working part-time at Brandy Melville.",
     avatar: uchidaTerence,
-    links: [{ type: 'email', href: 'mailto:uchidaterence@gmail.com' }],
+    links: [
+      { type: 'email', href: 'mailto:uchidaterence@gmail.com' },
+      { type: 'linkedin', href: 'https://www.linkedin.com/in/terence-win-5b212b2b7/' },
+    ],
   },
   {
     name: 'Bhushith Gujjala Hari',
