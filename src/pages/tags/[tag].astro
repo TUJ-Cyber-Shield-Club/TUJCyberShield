@@ -22,11 +22,15 @@ const hasDemo = tagged.some((a) => a.data.demo);
   title={`Articles tagged “${tag}” · Cyber Shield`}
   description={`All Cyber Shield articles about ${tag}: practical, plain-language advice for students.`}
 >
-  <p class="flank">Topic</p>
-  <h1>{tag}</h1>
-  <p class="intro meta">
-    {tagged.length} article{tagged.length === 1 ? '' : 's'} on this topic.
-  </p>
+  <header class="masthead">
+    <p class="kick">Topic file</p>
+    <h1><span class="hash" aria-hidden="true">#</span>{tag}</h1>
+    <p class="databar masthead-meta">
+      <span>
+        <b>{tagged.length}</b> article{tagged.length === 1 ? '' : 's'} on this topic
+      </span>
+    </p>
+  </header>
 
   <nav class="tag-filter" aria-label="Filter by tag">
     <ul class="chips">
@@ -51,23 +55,32 @@ const hasDemo = tagged.some((a) => a.data.demo);
 
   {hasDemo && <DemoBanner context="list" />}
 
-  <ul class="card-grid">
+  <ul class="card-grid reveal">
     {tagged.map((article) => <ArticleCard article={article} headingLevel="h2" />)}
   </ul>
 </Base>
 
 <style>
   h1 {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
+    font-size: clamp(2.3rem, 5.4vw, 3.4rem);
     text-transform: capitalize;
   }
 
-  .intro {
-    margin-top: 0.5rem;
+  .hash {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.72em;
+    margin-right: 0.08em;
+  }
+
+  .masthead-meta {
+    margin-top: 1rem;
   }
 
   .tag-filter {
-    margin-block: 1.5rem 2rem;
+    margin-block: 1.75rem 2.25rem;
   }
 
   .chips {

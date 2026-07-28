@@ -6,36 +6,150 @@ interface Props {
   article: Article;
   /** Heading level for the card title, so lists keep a sane outline. */
   headingLevel?: 'h2' | 'h3';
+  /** Wide editorial treatment for the lead story of a section. */
+  feature?: boolean;
   eager?: boolean;
 }
 
-const { article, headingLevel: Heading = 'h3', eager = false } = Astro.props;
-const { title, description, pubDate, authors, coverImage, coverAlt, draft } = article.data;
+const { article, headingLevel: Heading = 'h3', feature = false, eager = false } = Astro.props;
+const { title, description, pubDate, authors, issue, coverImage, coverAlt, draft } = article.data;
 const url = withBase(`/articles/${article.id}/`);
 const minutes = readingTime(article.body);
 ---
 
-<li class="card" data-issue={article.data.issue}>
+<li
+  class:list={['card', feature && 'card--feature', feature && coverImage && 'card--split']}
+  data-issue={issue}
+>
   {
     coverImage && (
       <div class="card-cover">
         <Image
           src={coverImage}
           alt={coverAlt ?? ''}
-          width="640"
-          height="336"
+          width={feature ? 1200 : 640}
+          height={feature ? 630 : 336}
           loading={eager ? 'eager' : 'lazy'}
         />
       </div>
     )
   }
-  <Heading>
-    <a href={url}>{title}{draft && ' (draft preview)'}</a>
-  </Heading>
-  <p>{description}</p>
-  <p class="meta">
-    <b>{authors.join(', ')}</b> ·{' '}
-    <time datetime={pubDate.toISOString().slice(0, 10)}>{formatDate(pubDate)}</time> · {minutes} min
-    read
-  </p>
+  <div class="card-body">
+    {feature && <p class="kick card-kick">Cover story</p>}
+    <p class="databar card-file">
+      <span>Vol {issue}</span>
+      <span>
+        <time datetime={pubDate.toISOString().slice(0, 10)}>{formatDate(pubDate)}</time>
+      </span>
+      <span>{minutes} min read</span>
+      {draft && <span class="card-draft">Draft preview</span>}
+    </p>
+    <Heading>
+      <a href={url}>{title}</a>
+    </Heading>
+    <p>{description}</p>
+    <p class="meta card-byline">
+      <b>{authors.join(', ')}</b>
+      <span class="card-cta" aria-hidden="true">Read briefing →</span>
+    </p>
+  </div>
 </li>
+
+<style>
+  .card--feature {
+    grid-column: 1 / -1;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background:
+      linear-gradient(135deg, var(--accent-soft), transparent 45%),
+      var(--bg-raised);
+  }
+
+  /* with a cover, split text left / image right; without one, run a wide
+     single column so no empty half ever shows */
+  .card--feature:not(.card--split) .card-body {
+    max-width: 46rem;
+  }
+
+  .card--split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+  }
+
+  .card--split .card-cover {
+    order: 2;
+    margin: 0;
+    align-self: center;
+  }
+
+  .card--split .card-cover img {
+    height: auto;
+    aspect-ratio: 1200 / 630;
+  }
+
+  .card--split .card-body {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-self: center;
+  }
+
+  .card-file {
+    font-size: 0.66rem;
+  }
+
+  .card-file > span {
+    white-space: nowrap;
+  }
+
+  .card-draft {
+    color: var(--warn);
+    font-weight: 600;
+  }
+
+  .card--feature :is(h2, h3) {
+    font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+    line-height: 1.08;
+  }
+
+  .card--feature p:not(.databar, .kick) {
+    font-size: 1.02rem;
+  }
+
+  .card-byline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .card-cta {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+  }
+
+  .card:hover .card-cta,
+  .card:focus-within .card-cta {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 48rem) {
+    .card--split {
+      grid-template-columns: 1fr;
+    }
+
+    .card--split .card-cover {
+      order: -1;
+    }
+  }
+</style>

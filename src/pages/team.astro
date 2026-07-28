@@ -13,10 +13,10 @@ const joinForm =
   title="Meet the team · Cyber Shield"
   description="The students behind Cyber Shield: the writers, editors, and organizers who research and publish TUJ's monthly digital-safety newsletter."
 >
-  <header class="masthead">
-    <p class="flank flank--center">The people behind the publication</p>
+  <header class="masthead reveal">
+    <p class="kick kick--center">The people behind the publication</p>
     <h1>Meet the team</h1>
-    <p class="lede meta">
+    <p class="lede">
       Cyber Shield is written and edited entirely by students. Here's who researches the threats,
       writes the guides, and keeps each issue on schedule.
     </p>
@@ -24,17 +24,19 @@ const joinForm =
 
   <ul class="team-grid">
     {
-      team.map((member) => (
-        <li class="member">
-          <Image
-            class="avatar"
-            src={member.avatar}
-            alt={`Photo of ${member.name}`}
-            width="240"
-            height="240"
-            fit="cover"
-            loading="lazy"
-          />
+      team.map((member, i) => (
+        <li class="member reveal" style={`--reveal-delay: ${i * 90}ms`}>
+          <div class="avatar-frame">
+            <Image
+              class="avatar"
+              src={member.avatar}
+              alt={`Photo of ${member.name}`}
+              width="240"
+              height="240"
+              fit="cover"
+              loading="lazy"
+            />
+          </div>
           <div class="member-body">
             <h2>{member.name}</h2>
             <p class="role">{member.role}</p>
@@ -46,10 +48,10 @@ const joinForm =
     }
   </ul>
 
-  <aside class="join">
-    <p class="flank flank--center">Want to join?</p>
+  <aside class="join corner-frame reveal">
+    <p class="kick kick--center">Want to join?</p>
     <h2>There's room for you on this team.</h2>
-    <p>
+    <p class="join-copy">
       No experience needed, just curiosity and a willingness to help people stay safe online.
       Writers, researchers, editors, and organizers all welcome.
     </p>
@@ -64,16 +66,20 @@ const joinForm =
   .masthead {
     text-align: center;
     max-width: 42rem;
-    margin: 0 auto 3rem;
+    margin: 0 auto 3.25rem;
   }
 
   .masthead h1 {
-    font-size: clamp(2rem, 5.5vw, 3rem);
-    margin-top: 1rem;
+    font-size: clamp(2.3rem, 5.6vw, 3.5rem);
+    margin-top: 1.15rem;
   }
 
   .lede {
-    margin-top: 0.8rem;
+    margin-top: 1rem;
+    font-family: var(--font-body);
+    font-size: 1.14rem;
+    line-height: 1.65;
+    color: var(--text-muted);
   }
 
   .team-grid {
@@ -81,69 +87,92 @@ const joinForm =
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 1.25rem;
+    gap: 1.4rem;
     grid-template-columns: repeat(auto-fill, minmax(min(22rem, 100%), 1fr));
   }
 
   .member {
     display: flex;
-    gap: 1.1rem;
-    padding: 1.4rem;
+    gap: 1.2rem;
+    padding: 1.5rem;
     background: var(--bg-raised);
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 6px;
+    transition: border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+
+  .member:hover {
+    border-color: var(--accent-line);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-3px);
+  }
+
+  .avatar-frame {
+    flex: 0 0 auto;
+    padding: 0.35rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--bg-inset);
+    align-self: flex-start;
+    transition: border-color var(--dur) var(--ease-out);
+  }
+
+  .member:hover .avatar-frame {
+    border-color: var(--accent);
   }
 
   .avatar {
-    flex: 0 0 auto;
-    width: 4.5rem;
-    height: 4.5rem;
-    border-radius: 50%;
-    border: 1px solid var(--line);
-    background: var(--bg-inset);
+    width: 4.4rem;
+    height: 4.4rem;
+    border-radius: 5px;
     object-fit: cover;
   }
 
   .member-body h2 {
-    font-size: 1.2rem;
+    font-size: 1.22rem;
   }
 
   .role {
+    font-family: var(--font-mono);
     color: var(--accent);
-    font-weight: 650;
-    font-size: 0.85rem;
-    letter-spacing: 0.02em;
-    margin-top: 0.15rem;
+    font-weight: 550;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 0.3rem;
   }
 
   .bio {
-    margin-top: 0.6rem;
+    margin-top: 0.7rem;
     color: var(--text-muted);
     font-family: var(--font-body);
     font-size: 1rem;
-    line-height: 1.6;
+    line-height: 1.62;
   }
 
   .join {
     text-align: center;
-    max-width: 40rem;
-    margin: clamp(3rem, 8vw, 4.5rem) auto 0;
-    padding: 2.25rem 1.5rem;
-    background: var(--bg-inset);
+    max-width: 42rem;
+    margin: clamp(3.5rem, 9vw, 5rem) auto 0;
+    padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2.5rem);
+    background:
+      linear-gradient(135deg, var(--accent-soft), transparent 55%),
+      var(--bg-raised);
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 8px;
   }
 
   .join h2 {
-    font-size: clamp(1.4rem, 4vw, 1.9rem);
-    margin-top: 0.6rem;
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    margin-top: 0.8rem;
   }
 
-  .join p {
-    margin-top: 0.75rem;
+  .join-copy {
+    margin-top: 0.85rem;
     color: var(--text-muted);
     font-family: var(--font-body);
-    font-size: 1.05rem;
+    font-size: 1.08rem;
     max-width: 34rem;
     margin-inline: auto;
   }
@@ -153,6 +182,12 @@ const joinForm =
     justify-content: center;
     gap: 0.75rem;
     flex-wrap: wrap;
-    margin-top: 1.5rem;
+    margin-top: 1.75rem;
+  }
+
+  @media (max-width: 34rem) {
+    .member {
+      flex-direction: column;
+    }
   }
 </style>

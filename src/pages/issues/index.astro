@@ -13,32 +13,50 @@ import {
 const articles = await getPublishedArticles();
 const issues = collectIssues(articles);
 const hasDemo = articles.some((a) => a.data.demo);
+
+// "2026-07" -> { month: "JUL", year: "2026" } for the shelf spines.
+const spine = (issue: string) => {
+  const [year] = issue.split('-');
+  const label = issueLabel(issue); // "July 2026"
+  return { month: label.split(' ')[0].slice(0, 3).toUpperCase(), year };
+};
 ---
 
 <Base
   title="Issue archive · Cyber Shield"
   description="Every monthly issue of the Cyber Shield newsletter, from the latest back to the first."
 >
-  <h1>Issue archive</h1>
-  <p class="intro meta">
-    Cyber Shield publishes one issue a month. Here is every issue so far, newest first.
-  </p>
+  <header class="masthead reveal">
+    <p class="kick">Bound volumes</p>
+    <h1>Issue archive</h1>
+    <p class="intro meta">
+      Cyber Shield publishes one issue a month. Here is every issue so far, newest first.
+    </p>
+  </header>
 
   {hasDemo && <DemoBanner context="issue" />}
 
   <div class="issues">
     {
-      issues.map((issue) => {
+      issues.map((issue, n) => {
         const inIssue = articles.filter((a) => a.data.issue === issue);
+        const s = spine(issue);
         return (
-          <section class="issue" aria-labelledby={`issue-${issue}`}>
+          <section class="issue reveal" aria-labelledby={`issue-${issue}`}>
             <header class="issue-head">
-              <p class="flank" aria-hidden="true">Issue {issue}</p>
+              <p class="spine" aria-hidden="true">
+                <span class="spine-count">{String(issues.length - n).padStart(2, '0')}</span>
+                <span class="spine-month">{s.month}</span>
+                <span class="spine-year">{s.year}</span>
+              </p>
               <h2 id={`issue-${issue}`}>
                 <a href={withBase(`/issues/${issue}/`)}>{issueLabel(issue)}</a>
               </h2>
-              <p class="meta">
-                {inIssue.length} article{inIssue.length === 1 ? '' : 's'}
+              <p class="databar">
+                <span>
+                  {inIssue.length} article{inIssue.length === 1 ? '' : 's'}
+                </span>
+                <span>Vol {issue}</span>
               </p>
             </header>
             <ul>
@@ -60,28 +78,70 @@ const hasDemo = articles.some((a) => a.data.demo);
 </Base>
 
 <style>
+  .masthead h1 {
+    font-size: clamp(2.4rem, 5.6vw, 3.6rem);
+    margin-top: 1.1rem;
+  }
+
   .intro {
-    margin-top: 0.5rem;
+    margin-top: 0.9rem;
+    font-size: 1.02rem;
   }
 
   .issues {
-    margin-top: 2.5rem;
+    margin-top: 3rem;
     display: flex;
     flex-direction: column;
-    gap: 2.75rem;
+    gap: 3.5rem;
   }
 
+  /* each volume: a big hollow spine label on the left, its table of
+     contents as a ruled ledger on the right */
   .issue {
     display: grid;
-    grid-template-columns: minmax(12rem, 16rem) 1fr;
-    gap: 1.5rem 3rem;
+    grid-template-columns: minmax(11rem, 15rem) 1fr;
+    gap: 1.5rem 3.5rem;
     border-top: 1px solid var(--line);
-    padding-top: 1.75rem;
+    padding-top: 2.25rem;
+  }
+
+  .spine {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+  }
+
+  .spine-count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    border: 1px solid var(--accent-line);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+  }
+
+  .spine-month {
+    font-size: clamp(2.4rem, 4.8vw, 3.4rem);
+    font-weight: 850;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+  }
+
+  .spine-year {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
   }
 
   .issue-head h2 {
-    font-size: 1.6rem;
-    margin-top: 0.6rem;
+    font-size: 1.55rem;
+    margin-top: 0.9rem;
   }
 
   .issue-head h2 a {
@@ -93,8 +153,8 @@ const hasDemo = articles.some((a) => a.data.demo);
     color: var(--accent-strong);
   }
 
-  .issue-head .meta {
-    margin-top: 0.3rem;
+  .issue-head .databar {
+    margin-top: 0.7rem;
   }
 
   .issue ul {
@@ -103,18 +163,51 @@ const hasDemo = articles.some((a) => a.data.demo);
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.1rem;
+  }
+
+  .issue li {
+    position: relative;
+    padding: 0.95rem 0 0.95rem 1.35rem;
+    border-top: 1px solid var(--line);
+    transition: background var(--dur) var(--ease-out);
+  }
+
+  .issue li::before {
+    content: '▸';
+    position: absolute;
+    left: 0.1rem;
+    top: 1rem;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .issue li:hover::before {
+    transform: translateX(4px);
   }
 
   .issue ul a {
     font-weight: 650;
-    font-size: 1.1rem;
+    font-size: 1.12rem;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+
+  .issue ul a:hover {
+    color: var(--accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
+  }
+
+  .issue ul .meta {
+    margin-top: 0.3rem;
   }
 
   @media (max-width: 44rem) {
     .issue {
       grid-template-columns: 1fr;
-      gap: 1.25rem;
+      gap: 1.4rem;
     }
   }
 </style>

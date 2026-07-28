@@ -1,14 +1,25 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import DemoBanner from '../components/DemoBanner.astro';
-import { getPublishedArticles, issueLabel, withBase } from '../utils/articles';
+import shield from '../assets/logo-shield.png';
+import {
+  collectIssues,
+  collectTags,
+  getPublishedArticles,
+  issueLabel,
+  withBase,
+} from '../utils/articles';
 
 const articles = await getPublishedArticles();
 const latestIssue = articles[0]?.data.issue;
 const latestIssueArticles = articles.filter((a) => a.data.issue === latestIssue);
+const [coverStory, ...restOfIssue] = latestIssueArticles;
 const earlier = articles.filter((a) => a.data.issue !== latestIssue).slice(0, 6);
 const hasDemo = articles.some((a) => a.data.demo);
+const issues = collectIssues(articles);
+const tags = collectTags(articles);
 ---
 
 <Base
@@ -16,33 +27,64 @@ const hasDemo = articles.some((a) => a.data.demo);
   description="Monthly, plain-language security advice from TUJ's Cyber Shield Club: phishing, passwords, scams, and privacy explained for everyday students."
 >
   <section class="hero">
-    <p class="flank flank--center">A TUJ student publication</p>
-    <h1>Digital safety, in plain language.</h1>
-    <p class="lede">
-      Every month, Cyber Shield students research the scams, leaks, and tricks aimed at people like
-      us, then explain exactly what to do about them. No jargon, no fear, no tech degree required.
-    </p>
-    <div class="cta">
-      {latestIssue && <a class="button" href={withBase(`/issues/${latestIssue}/`)}>Read the latest issue</a>}
-      <a class="button button--ghost" href={withBase('/about/')}>About the club</a>
+    <div class="hero-text">
+      <p class="kick">A TUJ student publication</p>
+      <h1>
+        Digital safety,<br />
+        <em>in plain language.</em>
+      </h1>
+      <p class="lede">
+        Every month, Cyber Shield students research the scams, leaks, and tricks aimed at people
+        like us, then explain exactly what to do about them. No jargon, no fear, no tech degree
+        required.
+      </p>
+      <div class="cta">
+        {latestIssue && <a class="button" href={withBase(`/issues/${latestIssue}/`)}>Read the latest issue</a>}
+        <a class="button button--ghost" href={withBase('/about/')}>About the club</a>
+      </div>
+    </div>
+
+    <div class="hero-crest" aria-hidden="true">
+      <div class="crest-frame corner-frame">
+        <Image
+          src={shield}
+          alt=""
+          width="400"
+          height="400"
+          loading="eager"
+        />
+      </div>
+      <p class="databar crest-bar">
+        <span>Monthly</span>
+        <span>Plain language</span>
+        <span>Student run</span>
+      </p>
     </div>
   </section>
+
+  <div class="ledger reveal" role="list">
+    <p role="listitem"><b>{articles.length}</b> briefings filed</p>
+    <p role="listitem"><b>{issues.length}</b> {issues.length === 1 ? 'issue' : 'issues'} published</p>
+    <p role="listitem"><b>{tags.length}</b> topics covered</p>
+    <p role="listitem"><b>1</b> issue a month</p>
+  </div>
 
   {hasDemo && <DemoBanner context="list" />}
 
   {
     latestIssue && (
-      <section class="section" aria-labelledby="latest-heading">
-        <h2 class="flank flank--lead" id="latest-heading">
+      <section class="section reveal" aria-labelledby="latest-heading">
+        <h2 class="kick kick--lead" id="latest-heading">
           The {issueLabel(latestIssue)} issue
         </h2>
         <ul class="card-grid">
-          {latestIssueArticles.map((article, i) => (
-            <ArticleCard article={article} eager={i === 0} />
+          {coverStory && <ArticleCard article={coverStory} feature eager />}
+          {restOfIssue.map((article, i) => (
+            <ArticleCard article={article} headingLevel="h3" />
           ))}
         </ul>
-        <p class="more">
-          <a href={withBase(`/issues/${latestIssue}/`)}>Everything in this issue →</a>
+        <p class="more databar">
+          <a href={withBase(`/issues/${latestIssue}/`)}>Everything in this issue</a>
         </p>
       </section>
     )
@@ -50,9 +92,9 @@ const hasDemo = articles.some((a) => a.data.demo);
 
   {
     earlier.length > 0 && (
-      <section class="section" aria-labelledby="recent-heading">
-        <h2 class="flank flank--lead" id="recent-heading">
-          Recently published
+      <section class="section reveal" aria-labelledby="recent-heading">
+        <h2 class="kick kick--lead" id="recent-heading">
+          From the archive
         </h2>
         <ul class="card-grid">
           {earlier.map((article) => (
@@ -63,9 +105,9 @@ const hasDemo = articles.some((a) => a.data.demo);
     )
   }
 
-  <section class="section">
-    <p class="more">
-      <a href={withBase('/articles/')}>Browse all articles</a> ·{' '}
+  <section class="section reveal">
+    <p class="more databar closing">
+      <a href={withBase('/articles/')}>Browse all articles</a>
       <a href={withBase('/issues/')}>Issue archive</a>
     </p>
   </section>
@@ -73,39 +115,143 @@ const hasDemo = articles.some((a) => a.data.demo);
 
 <style>
   .hero {
-    text-align: center;
-    max-width: 46rem;
-    margin-inline: auto;
-    padding-block: clamp(1rem, 5vw, 3rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4rem);
+    padding-block: clamp(1.5rem, 5vw, 3.5rem) clamp(2rem, 5vw, 3rem);
   }
 
   .hero h1 {
-    font-size: clamp(2.1rem, 6vw, 3.4rem);
-    margin-top: 1.1rem;
+    font-size: clamp(2.6rem, 6.2vw, 4.4rem);
+    font-weight: 820;
+    letter-spacing: -0.032em;
+    line-height: 1.02;
+    margin-top: 1.25rem;
+  }
+
+  /* the tonal counterpoint: serif italic in phosphor teal */
+  .hero h1 em {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    color: var(--accent);
+    font-size: 0.99em;
   }
 
   .lede {
-    margin-top: 1.2rem;
+    margin-top: 1.4rem;
     font-family: var(--font-body);
-    font-size: 1.15rem;
-    line-height: 1.65;
+    font-size: 1.16rem;
+    line-height: 1.68;
     color: var(--text-muted);
+    max-width: 34rem;
   }
 
   .cta {
     display: flex;
-    justify-content: center;
     gap: 0.75rem;
     flex-wrap: wrap;
-    margin-top: 1.75rem;
+    margin-top: 2rem;
   }
 
-  .flank--lead {
-    margin-bottom: 1.5rem;
+  /* the crest, mounted like a framed exhibit with a hover-level float */
+  .hero-crest {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.1rem;
+    justify-self: center;
+  }
+
+  .crest-frame {
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background:
+      radial-gradient(closest-side, var(--accent-soft), transparent),
+      var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    animation: hover-float 7s ease-in-out infinite;
+  }
+
+  .crest-frame img {
+    width: clamp(9rem, 20vw, 14rem);
+    filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.18));
+  }
+
+  @keyframes hover-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .crest-bar {
+    justify-content: center;
+  }
+
+  /* the ledger: a ruled strip of live counts under the masthead */
+  .ledger {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 2.5rem;
+    padding-block: 0.95rem;
+    border-block: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .ledger b {
+    color: var(--accent);
+    font-weight: 650;
+    margin-right: 0.4em;
   }
 
   .more {
-    margin-top: 1.4rem;
+    margin-top: 1.75rem;
+  }
+
+  .more a {
     font-weight: 600;
+  }
+
+  .kick--lead {
+    margin-bottom: 1.75rem;
+  }
+
+  .closing {
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 56rem) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-crest {
+      order: -1;
+      align-items: flex-start;
+      justify-self: start;
+    }
+
+    .crest-frame {
+      padding: 1.25rem;
+    }
+
+    .crest-frame img {
+      width: 8rem;
+    }
+
+    .crest-bar {
+      display: none;
+    }
   }
 </style>

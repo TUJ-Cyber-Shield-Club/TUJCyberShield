@@ -1,65 +1,88 @@
 /* ---------------------------------------------------------------------------
-   Cyber Shield design tokens
+   Cyber Shield design tokens — "The Dossier" system
 
-   Brand palette (named before any component was written):
-     ink    #10202F  deep navy, page base in dark, text in light
-     paper  #F6F8F7  cool off-white, page base in light
-     teal   #0E7C7C  security accent, taken from the club shield (AA on paper)
-     glow   #4CC8C4  the same accent tuned for dark backgrounds (AA on ink)
-     slate  #57697A  muted supporting text
-     mist   #D9E2E4  hairlines, chips, quiet surfaces
+   Concept: an editorial broadsheet rendered through a security-ops console.
+   Quiet paper, ruled hairlines, and serif prose carry the reading experience;
+   monospace "databar" metadata, corner-tick frames, and a phosphor teal
+   accent carry the cyber identity. Everything is tuned for calm readability
+   first; the console flavor lives in the margins.
+
+   Brand palette:
+      ink    #0d1a26  deep navy-black, text in light / page base in dark
+      paper  #f4f6f5  cool off-white, page base in light
+      teal   #0a6b69  security accent on paper (AA, 5.8:1)
+      glow   #4cc8c4  the same accent tuned for dark backgrounds (AA, 9.4:1)
+      slate  #4f6070  muted supporting text (AA, 6.0:1)
+      mist   #d7e1e2  hairlines, chips, quiet surfaces
+      warn   #b3500e  demo/draft notices only (AA, 4.8:1)
 
    Type roles:
-     display  Libre Franklin (headings, nav, labels, mastheads)
-     body     Source Serif 4 (article prose at ~65ch)
-
-   Layout concept: quiet editorial pages with one signature element, the
-   "flanked label" masthead (a small caps label between two rules),
-   echoing the ruled wordmark under the club shield. Used for issue
-   headers, section labels, and the hero kicker. Everything else stays flat.
+      display  Libre Franklin (headlines, nav, UI)
+      body     Source Serif 4 (article prose at ~65ch)
+      mono     JetBrains Mono (databars, metadata, labels — the terminal voice)
 --------------------------------------------------------------------------- */
 
 :root {
   /* brand */
-  --ink: #10202f;
-  --paper: #f6f8f7;
-  --teal: #0e7c7c;
+  --ink: #0d1a26;
+  --paper: #f4f6f5;
+  --teal: #0a6b69;
   --glow: #4cc8c4;
-  --slate: #57697a;
-  --mist: #d9e2e4;
+  --warn: #b3500e;
 
   /* type */
   --font-display: 'Libre Franklin Variable', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
   --font-body: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* semantic tokens, light theme (default) */
   color-scheme: light;
   --bg: var(--paper);
-  --bg-raised: #ffffff;
-  --bg-inset: #e9efef;
-  --text: var(--ink);
-  --text-muted: #46596b;
+  --bg-raised: #fbfcfc;
+  --bg-inset: #e7edec;
+  --text: #0f1e2b;
+  --text-muted: #4f6070;
   --accent: var(--teal);
-  --accent-strong: #0a5e5e;
+  --accent-strong: #08514f;
   --accent-contrast: #ffffff;
-  --line: var(--mist);
-  --line-strong: #b9c9cc;
-  --shadow: 0 1px 2px rgb(16 32 47 / 0.06), 0 4px 16px rgb(16 32 47 / 0.06);
+  --accent-soft: rgb(10 107 105 / 0.07);
+  --accent-line: rgb(10 107 105 / 0.35);
+  --warn-soft: rgb(179 80 14 / 0.1);
+  --line: #d6e0e1;
+  --line-strong: #aec0c4;
+  --grid-line: rgb(13 26 38 / 0.05);
+  --grid-line-strong: rgb(13 26 38 / 0.09);
+  --header-bg: rgb(244 246 245 / 0.82);
+  --glow-fx: rgb(76 200 196 / 0.14);
+  --shadow: 0 1px 2px rgb(13 26 38 / 0.05), 0 8px 24px rgb(13 26 38 / 0.07);
+  --shadow-lift: 0 2px 4px rgb(13 26 38 / 0.06), 0 18px 40px rgb(13 26 38 / 0.12);
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 220ms;
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0d1b29;
-  --bg-raised: #14283a;
-  --bg-inset: #1a3145;
-  --text: #e8eff2;
-  --text-muted: #a3b6c4;
+  --bg: #08111a;
+  --bg-raised: #0d1a26;
+  --bg-inset: #13242f;
+  --text: #e6eef1;
+  --text-muted: #9fb4c2;
   --accent: var(--glow);
   --accent-strong: #7ededa;
-  --accent-contrast: #072a33;
-  --line: #24394c;
-  --line-strong: #38506a;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25);
+  --accent-contrast: #052e2c;
+  --accent-soft: rgb(76 200 196 / 0.09);
+  --accent-line: rgb(76 200 196 / 0.4);
+  --warn-soft: rgb(232 140 60 / 0.14);
+  --line: #1d3040;
+  --line-strong: #33546b;
+  --grid-line: rgb(76 200 196 / 0.05);
+  --grid-line-strong: rgb(76 200 196 / 0.1);
+  --header-bg: rgb(8 17 26 / 0.78);
+  --glow-fx: rgb(76 200 196 / 0.16);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.4), 0 18px 44px rgb(0 0 0 / 0.5);
 }
 
 /* System preference applies unless the visitor chose light explicitly.
@@ -67,16 +90,24 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --bg: #0d1b29;
-    --bg-raised: #14283a;
-    --bg-inset: #1a3145;
-    --text: #e8eff2;
-    --text-muted: #a3b6c4;
+    --bg: #08111a;
+    --bg-raised: #0d1a26;
+    --bg-inset: #13242f;
+    --text: #e6eef1;
+    --text-muted: #9fb4c2;
     --accent: var(--glow);
     --accent-strong: #7ededa;
-    --accent-contrast: #072a33;
-    --line: #24394c;
-    --line-strong: #38506a;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25);
+    --accent-contrast: #052e2c;
+    --accent-soft: rgb(76 200 196 / 0.09);
+    --accent-line: rgb(76 200 196 / 0.4);
+    --warn-soft: rgb(232 140 60 / 0.14);
+    --line: #1d3040;
+    --line-strong: #33546b;
+    --grid-line: rgb(76 200 196 / 0.05);
+    --grid-line-strong: rgb(76 200 196 / 0.1);
+    --header-bg: rgb(8 17 26 / 0.78);
+    --glow-fx: rgb(76 200 196 / 0.16);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.4), 0 18px 44px rgb(0 0 0 / 0.5);
   }
 }

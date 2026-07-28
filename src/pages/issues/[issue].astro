@@ -16,28 +16,32 @@ const { issue } = Astro.params;
 const { inIssue } = Astro.props;
 const label = issueLabel(issue!);
 const hasDemo = inIssue.some((a) => a.data.demo);
+const [lead, ...rest] = inIssue;
 ---
 
 <Base
   title={`${label} issue · Cyber Shield`}
   description={`All ${inIssue.length} articles from the ${label} issue of Cyber Shield, TUJ's plain-language digital safety newsletter.`}
 >
-  <header class="masthead">
-    <p class="flank flank--center">Cyber Shield · Issue {issue}</p>
+  <header class="masthead reveal">
+    <p class="kick kick--center">Cyber Shield · Issue {issue}</p>
     <h1>The {label} issue</h1>
-    <p class="lede meta">
-      {inIssue.length} article{inIssue.length === 1 ? '' : 's'} researched, written, and edited by
-      club members.
+    <p class="databar masthead-meta">
+      <span>
+        <b>{inIssue.length}</b> article{inIssue.length === 1 ? '' : 's'}
+      </span>
+      <span>Researched, written, and edited by club members</span>
     </p>
   </header>
 
   {hasDemo && <DemoBanner context="issue" />}
 
-  <ul class="card-grid">
-    {inIssue.map((article, i) => <ArticleCard article={article} headingLevel="h2" eager={i === 0} />)}
+  <ul class="card-grid reveal">
+    {lead && <ArticleCard article={lead} headingLevel="h2" feature eager />}
+    {rest.map((article) => <ArticleCard article={article} headingLevel="h2" />)}
   </ul>
 
-  <p class="back">
+  <p class="back databar">
     <a href={withBase('/issues/')}>← All issues</a>
   </p>
 </Base>
@@ -45,21 +49,31 @@ const hasDemo = inIssue.some((a) => a.data.demo);
 <style>
   .masthead {
     text-align: center;
-    max-width: 42rem;
-    margin: 0 auto 2.5rem;
+    max-width: 44rem;
+    margin: 0 auto 3rem;
   }
 
   .masthead h1 {
-    font-size: clamp(2rem, 5.5vw, 3rem);
+    font-size: clamp(2.3rem, 5.6vw, 3.5rem);
+    margin-top: 1.15rem;
+  }
+
+  .masthead-meta {
+    justify-content: center;
     margin-top: 1rem;
   }
 
-  .lede {
-    margin-top: 0.7rem;
+  .back {
+    margin-top: 2.5rem;
   }
 
-  .back {
-    margin-top: 2.25rem;
+  .back a {
     font-weight: 600;
+    text-decoration: none;
+  }
+
+  .back a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
   }
 </style>

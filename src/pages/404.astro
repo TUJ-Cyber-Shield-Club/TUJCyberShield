@@ -10,8 +10,11 @@ import { withBase } from '../utils/articles';
   description="That page doesn't exist. Head back to the Cyber Shield home page or browse all articles."
 >
   <div class="lost">
-    <Image src={shield} alt="" width="120" height="120" loading="eager" />
-    <p class="flank flank--center">404 · signal lost</p>
+    <p class="err-code" aria-hidden="true">404</p>
+    <div class="lost-mark corner-frame">
+      <Image src={shield} alt="" width="120" height="120" loading="eager" />
+    </div>
+    <p class="kick kick--center">404 · signal lost</p>
     <h1>This page doesn't exist.</h1>
     <p class="meta">
       The link may be old, or the address may have a typo. (If someone sent you here, that's worth
@@ -33,7 +36,28 @@ import { withBase } from '../utils/articles';
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 1.1rem;
+  }
+
+  /* the fault code: a huge hollow readout behind the shield */
+  .err-code {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: clamp(5rem, 16vw, 8.5rem);
+    line-height: 0.85;
+    letter-spacing: 0.02em;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--line-strong);
+    opacity: 0.6;
+    margin-bottom: -2.5rem;
+  }
+
+  .lost-mark {
+    position: relative;
+    padding: 1rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
   }
 
   h1 {

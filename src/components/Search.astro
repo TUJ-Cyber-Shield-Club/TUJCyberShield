@@ -8,7 +8,7 @@ const pagefindBase = withBase('/pagefind');
 ---
 
 <div class="search-block">
-  <label class="flank" for="search-box-input" id="search-label">Search articles</label>
+  <label class="kick" for="search-box-input" id="search-label">Search the archive</label>
   <div id="search" data-base={pagefindBase}></div>
   <noscript>
     <p class="meta">Search needs JavaScript. No problem, every article is listed below.</p>
@@ -47,28 +47,34 @@ const pagefindBase = withBase('/pagefind');
 
 <style is:global>
   .search-block {
-    max-width: 40rem;
-    margin-block: 1.5rem 2rem;
+    max-width: 42rem;
+    margin-block: 1.75rem 2.25rem;
   }
 
-  .search-block .flank {
-    margin-bottom: 0.75rem;
+  .search-block .kick {
+    margin-bottom: 0.85rem;
   }
 
   #search {
-    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-scale: 0.92;
     --pagefind-ui-primary: var(--accent);
     --pagefind-ui-text: var(--text);
     --pagefind-ui-background: var(--bg-raised);
     --pagefind-ui-border: var(--line-strong);
     --pagefind-ui-tag: var(--bg-inset);
     --pagefind-ui-border-width: 1px;
-    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-border-radius: 6px;
     --pagefind-ui-font: var(--font-display);
+  }
+
+  #search .pagefind-ui__search-input {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
   }
 
   #search .pagefind-ui__result-link {
     color: var(--accent);
+    font-weight: 650;
   }
 
   #search .pagefind-ui__result-excerpt mark {
