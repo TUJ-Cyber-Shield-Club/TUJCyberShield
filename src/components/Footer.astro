@@ -99,6 +99,7 @@ const joinForm =
     font-weight: 600;
     font-size: 0.93rem;
     text-decoration: none;
+    overflow-wrap: anywhere;
   }
 
   nav a:hover,
@@ -108,12 +109,17 @@ const joinForm =
     text-underline-offset: 0.22em;
   }
 
-  /* The colophon: an enormous hollow wordmark, cropped by the page edge. */
+  /* The colophon: an enormous hollow wordmark. Sized to stay fully inside
+     the content width on every breakpoint (especially phones). */
   .marquee {
     margin-top: 2.75rem;
     margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
     font-weight: 850;
-    font-size: clamp(3.4rem, 11.5vw, 9.5rem);
+    /* ~8.4em wide wordmark → keep font-size under the padded content box */
+    font-size: clamp(1.7rem, 10.5vw, 9.5rem);
     line-height: 0.82;
     letter-spacing: 0.015em;
     text-align: center;
@@ -138,7 +144,19 @@ const joinForm =
     }
 
     .marquee {
-      text-align: left;
+      /* Tighter fluid size so "CYBER SHIELD" fits with wrap padding on phones */
+      font-size: clamp(1.55rem, 9.2vw, 4.5rem);
+      letter-spacing: 0.01em;
+      -webkit-text-stroke-width: 1.25px;
+    }
+
+    .fine {
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .fine > * + *::before {
+      content: none;
     }
   }
 </style>
