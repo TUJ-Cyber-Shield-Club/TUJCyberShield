@@ -9,12 +9,20 @@
 
    Brand palette:
       ink    #0d1a26  deep navy-black, text in light / page base in dark
-      paper  #f4f6f5  cool off-white, page base in light
-      teal   #0a6b69  security accent on paper (AA, 5.8:1)
+      paper  #e6ecf6  blue-tinted paper, page base in light
+      teal   #085f5e  security accent on paper (AA, 6.8:1)
       glow   #4cc8c4  the same accent tuned for dark backgrounds (AA, 9.4:1)
-      slate  #4f6070  muted supporting text (AA, 6.0:1)
-      mist   #d7e1e2  hairlines, chips, quiet surfaces
-      warn   #b3500e  demo/draft notices only (AA, 4.8:1)
+      slate  #59626f  muted supporting text (AA, 5.6:1)
+      mist   #cfdae9  hairlines, chips, quiet surfaces
+      warn   #ac4d0d  demo/draft notices only (AA, 4.6:1)
+
+   On the light palette — it is deliberately not white. Paper sits at 83.5%
+   luminance and raised surfaces cap at 90.2%, because the previous palette
+   put cards at 97.2% (brighter than the page behind them) with body text at
+   16.5:1. Past roughly 13:1 on a bright field, extra contrast stops helping
+   and starts causing glare, so text now solves to 12:1 — still well past the
+   AAA threshold of 7:1. The blue cast is 8deg from the dark theme's navy
+   base, so both themes read as one brand.
 
    Type roles:
       display  Libre Franklin (headlines, nav, UI)
@@ -25,10 +33,10 @@
 :root {
   /* brand */
   --ink: #0d1a26;
-  --paper: #f4f6f5;
-  --teal: #0a6b69;
+  --paper: #e6ecf6;
+  --teal: #085f5e;
   --glow: #4cc8c4;
-  --warn: #b3500e;
+  --warn: #ac4d0d;
 
   /* type */
   --font-display: 'Libre Franklin Variable', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
@@ -38,21 +46,22 @@
   /* semantic tokens, light theme (default) */
   color-scheme: light;
   --bg: var(--paper);
-  --bg-raised: #fbfcfc;
-  --bg-inset: #e7edec;
-  --text: #0f1e2b;
-  --text-muted: #4f6070;
+  --bg-raised: #f0f4fb;
+  --bg-inset: #d9e2f0;
+  --text: #26313f;
+  --text-muted: #59626f;
   --accent: var(--teal);
-  --accent-strong: #08514f;
+  --accent-strong: #064a49;
   --accent-contrast: #ffffff;
-  --accent-soft: rgb(10 107 105 / 0.07);
-  --accent-line: rgb(10 107 105 / 0.35);
-  --warn-soft: rgb(179 80 14 / 0.1);
-  --line: #d6e0e1;
-  --line-strong: #aec0c4;
+  --accent-soft: rgb(8 95 94 / 0.07);
+  --accent-line: rgb(8 95 94 / 0.32);
+  --warn-text: #ac4d0d;
+  --warn-soft: rgb(172 77 13 / 0.1);
+  --line: #cfdae9;
+  --line-strong: #9fb2cb;
   --grid-line: rgb(13 26 38 / 0.05);
   --grid-line-strong: rgb(13 26 38 / 0.09);
-  --header-bg: rgb(244 246 245 / 1);
+  --header-bg: rgb(230 236 246 / 1);
   --glow-fx: rgb(76 200 196 / 0.14);
   --shadow: 0 1px 2px rgb(13 26 38 / 0.05), 0 8px 24px rgb(13 26 38 / 0.07);
   --shadow-lift: 0 2px 4px rgb(13 26 38 / 0.06), 0 18px 40px rgb(13 26 38 / 0.12);
@@ -74,6 +83,7 @@
   --accent-contrast: #052e2c;
   --accent-soft: rgb(76 200 196 / 0.09);
   --accent-line: rgb(76 200 196 / 0.4);
+  --warn-text: #e88c3c;
   --warn-soft: rgb(232 140 60 / 0.14);
   --line: #1d3040;
   --line-strong: #33546b;
@@ -100,6 +110,7 @@
     --accent-contrast: #052e2c;
     --accent-soft: rgb(76 200 196 / 0.09);
     --accent-line: rgb(76 200 196 / 0.4);
+    --warn-text: #e88c3c;
     --warn-soft: rgb(232 140 60 / 0.14);
     --line: #1d3040;
     --line-strong: #33546b;

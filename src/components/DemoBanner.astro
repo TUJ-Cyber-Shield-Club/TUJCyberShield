@@ -27,7 +27,8 @@ const message = {
     gap: 0.85rem;
     margin-bottom: 1.75rem;
     padding: 0.75rem 1rem;
-    border: 1px dashed rgb(179 80 14 / 0.55);
+    /* keep in sync with --warn in tokens.css */
+    border: 1px dashed rgb(172 77 13 / 0.55);
     border-radius: 6px;
     background: var(--warn-soft);
     color: var(--text);
@@ -47,7 +48,6 @@ const message = {
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
   }
 
   .demo-banner p {

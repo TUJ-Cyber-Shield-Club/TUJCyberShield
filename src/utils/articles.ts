@@ -50,6 +50,32 @@ export function collectTags(articles: Article[]): string[] {
   return [...new Set(articles.flatMap((a) => a.data.tags))].sort();
 }
 
+/** Compare bylines forgivingly: ignore case, surrounding space, and double spaces. */
+function normalizeAuthor(name: string): string {
+  return name.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+/**
+ * Articles credited to one person, newest first (input order is preserved).
+ * `names` should be the member's display name plus any `authorNames` aliases,
+ * so a byline that differs from the display name still matches.
+ * Returns an empty array when they haven't been credited on anything.
+ */
+export function articlesByAuthor(articles: Article[], names: string[]): Article[] {
+  const wanted = new Set(names.map(normalizeAuthor));
+  return articles.filter((article) =>
+    article.data.authors.some((author) => wanted.has(normalizeAuthor(author)))
+  );
+}
+
+/** "Carl Masters" -> "carl-masters", for element ids. */
+export function slugifyName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 /** Prefix a root-relative path with the configured base (works on project pages and custom domains). */
 export function withBase(path: string): string {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');

@@ -31,6 +31,19 @@ export interface TeamMember {
   bio: string;
   avatar: ImageMetadata;
   links?: SocialLink[];
+  /**
+   * Extra bylines that belong to this person, for when an article's `authors`
+   * entry isn't written exactly like `name` above (e.g. name ordering, or a
+   * maiden/preferred name). Matching already ignores case and extra spaces, so
+   * you only need this for genuinely different spellings.
+   *
+   *   name: 'Uchida Terence',
+   *   authorNames: ['Terence Uchida'],
+   *
+   * Their popup lists every article matched by `name` or any alias here; if
+   * nothing matches, the "See my articles" link is not shown at all.
+   */
+  authorNames?: string[];
 }
 
 export const team: TeamMember[] = [

@@ -39,7 +39,13 @@ const tags = collectTags(articles);
         required.
       </p>
       <div class="cta">
-        {latestIssue && <a class="button" href={withBase(`/issues/${latestIssue}/`)}>Read the latest issue</a>}
+        {
+          latestIssue && (
+            <a class="button" href={withBase(`/issues/${latestIssue}/`)}>
+              Read the latest issue <span class="button-arrow" aria-hidden="true">→</span>
+            </a>
+          )
+        }
         <a class="button button--ghost" href={withBase('/about/')}>About the club</a>
       </div>
     </div>

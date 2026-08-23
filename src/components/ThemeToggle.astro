@@ -68,11 +68,12 @@
     width: 2.3rem;
     height: 2.3rem;
     border: 1px solid var(--line-strong);
-    border-radius: 4px;
+    /* Matches the radius on .button and .join-link. The old clip-path both
+       cancelled this radius and clipped away the focus ring. */
+    border-radius: 6px;
     background: transparent;
     cursor: pointer;
     color: var(--text);
-    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
     transition: color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out),
       background var(--dur) var(--ease-out);
   }

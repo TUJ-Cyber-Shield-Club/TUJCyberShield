@@ -104,7 +104,9 @@ const minutes = readingTime(article.body);
   }
 
   .card-draft {
-    color: var(--warn);
+    /* --warn is tuned as a surface (the demo badge fill); as text on a dark
+       card it only reaches 3.2:1, so use the text-tuned variant. */
+    color: var(--warn-text);
     font-weight: 600;
   }
 

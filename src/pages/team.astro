@@ -3,10 +3,38 @@ import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import SocialIcons from '../components/SocialIcons.astro';
 import { team } from '../data/team';
-import { withBase } from '../utils/articles';
+import {
+  articlesByAuthor,
+  getPublishedArticles,
+  issueLabel,
+  readingTime,
+  slugifyName,
+  withBase,
+} from '../utils/articles';
 
 const joinForm =
   'https://docs.google.com/forms/d/e/1FAIpQLSf8e37fWWAWD6axVy3mzr_sbEWz8ce-pZ0NZT-cZfEaTNVqkA/viewform?usp=header';
+
+// Pair each member with the articles they're credited on. Members with no
+// credits get an empty list, and their popup simply omits the articles link.
+const published = await getPublishedArticles();
+
+// Slugs drive the popup element ids. A name with no ASCII letters or digits
+// (a Japanese name, say) slugifies to an empty string, and two names can
+// slugify alike, so fall back to the row index to keep every id unique —
+// otherwise getElementById would open the wrong person's popup.
+const usedSlugs = new Set<string>();
+const members = team.map((member, i) => {
+  const base = slugifyName(member.name);
+  const slug = !base || usedSlugs.has(base) ? `${base || 'member'}-${i}` : base;
+  usedSlugs.add(slug);
+  return {
+    ...member,
+    id: `member-${slug}`,
+    photoId: `photo-${slug}`,
+    articles: articlesByAuthor(published, [member.name, ...(member.authorNames ?? [])]),
+  };
+});
 ---
 
 <Base
@@ -24,9 +52,27 @@ const joinForm =
 
   <ul class="team-grid">
     {
-      team.map((member, i) => (
+      members.map((member, i) => (
         <li class="member reveal" style={`--reveal-delay: ${i * 90}ms`}>
-          <div class="avatar-frame">
+          {/* Covers the whole card so any click opens the popup. Social links
+              sit above it (see .member-links) and stay individually clickable. */}
+          <button
+            type="button"
+            class="member-open"
+            data-open={member.id}
+            aria-haspopup="dialog"
+          >
+            <span class="visually-hidden">Read more about {member.name}</span>
+          </button>
+          {/* Sits above .member-open so the photo opens the photo popup
+              rather than the member popup. */}
+          <button
+            type="button"
+            class="avatar-frame avatar-button"
+            data-open={member.photoId}
+            aria-haspopup="dialog"
+            aria-label={`View a larger photo of ${member.name}`}
+          >
             <Image
               class="avatar"
               src={member.avatar}
@@ -36,17 +82,118 @@ const joinForm =
               fit="cover"
               loading="lazy"
             />
-          </div>
+          </button>
           <div class="member-body">
             <h2>{member.name}</h2>
             <p class="role">{member.role}</p>
             <p class="bio">{member.bio}</p>
-            <SocialIcons links={member.links} name={member.name} />
+            <div class="member-links">
+              <SocialIcons links={member.links} name={member.name} />
+            </div>
           </div>
         </li>
       ))
     }
   </ul>
+
+  {/* One popup per member. Hidden until opened, and inert without JS — the
+      cards above already carry the same bio and links. */}
+  {
+    members.map((member) => (
+      <dialog id={member.id} class="member-modal" aria-labelledby={`${member.id}-name`}>
+        {/* Outside .modal-inner: that's the scrolling box, so a close button
+            inside it scrolls out of reach on a long bio (and phones have no
+            Esc key). Anchored to the dialog, it stays put. */}
+        <button type="button" class="modal-close" data-close aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+        <div class="modal-inner">
+          {/* Two columns on desktop (identity beside the text), stacked on
+              mobile — see the grid-template-areas in the styles below. */}
+          <div class="modal-grid">
+            <button
+              type="button"
+              class="avatar-frame avatar-frame--lg avatar-button modal-photo"
+              data-open={member.photoId}
+              aria-haspopup="dialog"
+              aria-label={`View a larger photo of ${member.name}`}
+            >
+              <Image
+                class="avatar avatar--lg"
+                src={member.avatar}
+                alt={`Photo of ${member.name}`}
+                width="480"
+                height="480"
+                fit="cover"
+                loading="lazy"
+              />
+            </button>
+
+            <div class="modal-id">
+              <h2 id={`${member.id}-name`}>{member.name}</h2>
+              <p class="role">{member.role}</p>
+            </div>
+
+            <div class="modal-social">
+              <SocialIcons links={member.links} name={member.name} />
+            </div>
+
+            <div class="modal-body">
+              <p class="bio bio--modal">{member.bio}</p>
+
+              {member.articles.length > 0 && (
+                <details class="contrib">
+                  <summary>
+                    See my articles <span class="contrib-count">{member.articles.length}</span>
+                  </summary>
+                  <ul class="contrib-list">
+                    {member.articles.map((article) => (
+                      <li>
+                        <a href={withBase(`/articles/${article.id}/`)}>{article.data.title}</a>
+                        <span class="databar contrib-meta">
+                          <span>{issueLabel(article.data.issue)}</span>
+                          <span>{readingTime(article.body)} min read</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </div>
+          </div>
+        </div>
+      </dialog>
+    ))
+  }
+
+  {/* Photo-only popup, opened from either avatar. Capped at 720px because
+      that's the smallest source photo — anything larger would upscale. */}
+  {
+    members.map((member) => (
+      <dialog id={member.photoId} class="photo-modal" aria-label={`Photo of ${member.name}`}>
+        <button type="button" class="modal-close photo-close" data-close aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+        <Image
+          class="photo-full"
+          src={member.avatar}
+          alt={`Photo of ${member.name}`}
+          width="720"
+          height="720"
+          fit="cover"
+          loading="lazy"
+        />
+        <p class="photo-caption databar">
+          <span>{member.name}</span>
+          <span>{member.role}</span>
+        </p>
+      </dialog>
+    ))
+  }
 
   <aside class="join corner-frame reveal">
     <p class="kick kick--center">Want to join?</p>
@@ -56,7 +203,9 @@ const joinForm =
       Writers, researchers, editors, and organizers all welcome.
     </p>
     <div class="cta">
-      <a class="button" href={joinForm} target="_blank" rel="noopener">Join here</a>
+      <a class="button" href={joinForm} target="_blank" rel="noopener">
+        Join here <span class="button-arrow" aria-hidden="true">→</span>
+      </a>
       <a class="button button--ghost" href={withBase('/about/')}>About the club</a>
     </div>
   </aside>
@@ -92,6 +241,7 @@ const joinForm =
   }
 
   .member {
+    position: relative;
     display: flex;
     gap: 1.2rem;
     padding: 1.5rem;
@@ -102,10 +252,61 @@ const joinForm =
       transform var(--dur) var(--ease-out);
   }
 
-  .member:hover {
+  .member:hover,
+  .member:has(.member-open:focus-visible) {
     border-color: var(--accent-line);
     box-shadow: var(--shadow-lift);
     transform: translateY(-3px);
+  }
+
+  /* Full-card hit area. Only present once JS can open the popup. */
+  .member-open {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: none;
+    padding: 0;
+    border: 0;
+    border-radius: inherit;
+    background: none;
+    cursor: pointer;
+  }
+
+  :global(html.js) .member-open {
+    display: block;
+  }
+
+  .member-open:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* Lifted above the card-wide button so each icon stays its own link. */
+  .member-links {
+    position: relative;
+    z-index: 2;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  /* The avatar frame is a button in both the card and the popup. Also above
+     .member-open, so clicking the photo opens the photo rather than the bio. */
+  .avatar-button {
+    position: relative;
+    z-index: 2;
+    display: block;
+    font: inherit;
+    color: inherit;
+    cursor: zoom-in;
+  }
+
+  .avatar-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .avatar-button:hover {
+    border-color: var(--accent);
   }
 
   .avatar-frame {
@@ -190,4 +391,411 @@ const joinForm =
       flex-direction: column;
     }
   }
+
+  /* --- member popup ------------------------------------------------------- */
+
+  .member-modal {
+    /* A modal <dialog> is centered by the browser's own `margin: auto`, which
+       the global `* { margin: 0 }` reset wipes out — re-assert it here or the
+       popup pins to the top-left corner. */
+    margin: auto;
+    /* Padding lives on .modal-inner so a click anywhere on the dialog box
+       itself can be treated as a backdrop click. */
+    padding: 0;
+    /* ~75% of the viewport on desktop, capped so prose never gets unreadably
+       wide on an ultrawide monitor. Mobile overrides this further down. */
+    width: min(75vw, 64rem);
+    max-height: 85vh;
+    /* The dialog itself never scrolls — .modal-inner does — so the close
+       button anchored here stays visible however long the bio runs. The
+       display value lives on [open] below: setting it here would outrank the
+       browser's `dialog:not([open]) { display: none }` and leave every popup
+       permanently on the page. */
+    overflow: hidden;
+    color: var(--text);
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .member-modal::backdrop {
+    background: rgb(8 17 26 / 0.62);
+    backdrop-filter: blur(3px);
+  }
+
+  .member-modal[open] {
+    display: flex;
+    flex-direction: column;
+    animation: modal-in var(--dur) var(--ease-out);
+  }
+
+  @keyframes modal-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.985);
+    }
+  }
+
+  .modal-inner {
+    overflow-y: auto;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+  }
+
+  .modal-close {
+    position: absolute;
+    z-index: 2;
+    top: 0.85rem;
+    right: 0.85rem;
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    color: var(--text-muted);
+    background: var(--bg-raised);
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color var(--dur) var(--ease-out), background var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out);
+  }
+
+  .modal-close:hover {
+    color: var(--accent-contrast);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* Desktop: portrait column on the left, prose on the right. */
+  .modal-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    grid-template-areas:
+      'photo  body'
+      'ident  body'
+      'social body';
+    grid-template-rows: auto auto 1fr;
+    align-content: start;
+    column-gap: 2.25rem;
+    row-gap: 1rem;
+    padding-right: 2rem;
+  }
+
+  .modal-photo {
+    grid-area: photo;
+  }
+
+  .modal-id {
+    grid-area: ident;
+  }
+
+  .modal-social {
+    grid-area: social;
+    align-self: start;
+  }
+
+  .modal-body {
+    grid-area: body;
+    min-width: 0;
+  }
+
+  .avatar-frame--lg {
+    width: 100%;
+    align-self: start;
+  }
+
+  .avatar--lg {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .modal-id h2 {
+    font-size: clamp(1.4rem, 3.5vw, 1.85rem);
+  }
+
+  .bio--modal {
+    /* Held to a comfortable measure even though the popup is wide. */
+    max-width: 62ch;
+    margin-top: 0;
+    font-size: 1.05rem;
+  }
+
+  /* --- article contributions ---------------------------------------------- */
+
+  .contrib {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .contrib summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: max-content;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 550;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .contrib summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Disclosure caret, rotates when the list is open. */
+  .contrib summary::before {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .contrib[open] summary::before {
+    transform: rotate(45deg);
+  }
+
+  .contrib summary:hover {
+    color: var(--accent-strong);
+  }
+
+  .contrib summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .contrib-count {
+    display: grid;
+    place-items: center;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding-inline: 0.35rem;
+    font-size: 0.72rem;
+    letter-spacing: 0;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-radius: 999px;
+  }
+
+  .contrib-list {
+    list-style: none;
+    margin: 0.9rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .contrib-list li {
+    padding: 0.7rem 0.85rem;
+    background: var(--bg-inset);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    transition: border-color var(--dur) var(--ease-out);
+  }
+
+  .contrib-list li:hover {
+    border-color: var(--accent-line);
+  }
+
+  .contrib-list a {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.35;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .contrib-list a:hover {
+    color: var(--accent);
+  }
+
+  .contrib-meta {
+    margin-top: 0.35rem;
+  }
+
+  /* --- photo-only popup ---------------------------------------------------- */
+
+  .photo-modal {
+    margin: auto;
+    padding: 0;
+    width: min(80vw, 34rem);
+    max-height: 90vh;
+    /* Sized to fit rather than scrolled, so the close button can't drift off. */
+    overflow: hidden;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .photo-modal::backdrop {
+    background: rgb(8 17 26 / 0.78);
+    backdrop-filter: blur(3px);
+  }
+
+  .photo-modal[open] {
+    animation: modal-in var(--dur) var(--ease-out);
+  }
+
+  .photo-full {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    /* Leaves room for the caption bar inside the dialog's 90vh cap, so a
+       short/landscape window can't push the photo past the edge. */
+    max-height: calc(90vh - 3.25rem);
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .photo-caption {
+    justify-content: space-between;
+    padding: 0.85rem 1.1rem;
+  }
+
+  .photo-close {
+    /* Sits on the photograph rather than a themed surface, so these colours
+       are deliberately literal and theme-independent — don't swap them for
+       palette tokens. */
+    position: absolute;
+    z-index: 2;
+    top: 0.75rem;
+    right: 0.75rem;
+    color: #ffffff;
+    background: rgb(8 17 26 / 0.72);
+    border-color: rgb(255 255 255 / 0.35);
+  }
+
+  /* --- tablet and below ---------------------------------------------------- */
+
+  @media (max-width: 52rem) {
+    .member-modal {
+      /* Near full-bleed: 75% of a phone screen would be unreadable. */
+      width: calc(100vw - 2rem);
+      max-height: 88vh;
+    }
+
+    /* Portrait beside the name, then links, then the bio underneath. */
+    .modal-grid {
+      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-areas:
+        'photo  ident'
+        'social social'
+        'body   body';
+      grid-template-rows: auto auto 1fr;
+      column-gap: 1.15rem;
+      row-gap: 1.1rem;
+      padding-right: 2.25rem;
+    }
+
+    .modal-photo {
+      align-self: center;
+    }
+
+    .avatar-frame--lg {
+      width: max-content;
+    }
+
+    .avatar--lg {
+      width: 5.5rem;
+      height: 5.5rem;
+    }
+
+    .modal-id {
+      align-self: center;
+    }
+
+    .photo-modal {
+      width: calc(100vw - 2rem);
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .member-modal,
+    .photo-modal {
+      width: calc(100vw - 1.25rem);
+      max-height: 92vh;
+    }
+
+    .avatar--lg {
+      width: 4.6rem;
+      height: 4.6rem;
+    }
+
+    .contrib-list li {
+      padding: 0.6rem 0.7rem;
+    }
+  }
 </style>
+
+<script>
+  // Member popups. Progressive enhancement: without JS the .member-open
+  // buttons stay hidden and every card already shows the full bio and links.
+  const dialogs = document.querySelectorAll<HTMLDialogElement>(
+    'dialog.member-modal, dialog.photo-modal'
+  );
+
+  /** True when the pointer event landed within the dialog's own box. */
+  const isInsideDialog = (dialog: HTMLDialogElement, event: MouseEvent) => {
+    const r = dialog.getBoundingClientRect();
+    return (
+      event.clientX >= r.left &&
+      event.clientX <= r.right &&
+      event.clientY >= r.top &&
+      event.clientY <= r.bottom
+    );
+  };
+
+  // A photo popup can open on top of a member popup, so the lock has to
+  // track whether *any* dialog is still open rather than just this one.
+  const syncScrollLock = () => {
+    const anyOpen = document.querySelector('dialog.member-modal[open], dialog.photo-modal[open]');
+    document.documentElement.style.overflow = anyOpen ? 'hidden' : '';
+  };
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-open]')) {
+    button.addEventListener('click', () => {
+      const dialog = document.getElementById(button.dataset.open ?? '');
+      if (!(dialog instanceof HTMLDialogElement)) return;
+      dialog.showModal();
+      // showModal() blocks interaction but not scrolling; hold the page still.
+      syncScrollLock();
+    });
+  }
+
+  for (const dialog of dialogs) {
+    dialog.querySelector('[data-close]')?.addEventListener('click', () => dialog.close());
+
+    // Close on a backdrop click. Testing `event.target === dialog` isn't
+    // enough: that also matches clicks on the dialog's own scrollbar, and
+    // text selections that happen to end over the backdrop. Compare against
+    // the dialog's box instead, and require the press to have started there.
+    let pressedBackdrop = false;
+    dialog.addEventListener('mousedown', (event) => {
+      pressedBackdrop = !isInsideDialog(dialog, event);
+    });
+    dialog.addEventListener('click', (event) => {
+      if (pressedBackdrop && !isInsideDialog(dialog, event)) dialog.close();
+      pressedBackdrop = false;
+    });
+
+    // Runs for the close button, the backdrop, and Esc alike.
+    dialog.addEventListener('close', () => {
+      syncScrollLock();
+      // Collapse the article list so the popup reopens in a known state.
+      dialog.querySelector('details.contrib')?.removeAttribute('open');
+    });
+  }
+</script>

@@ -22,6 +22,9 @@ html {
   scroll-behavior: smooth;
   /* keep anchor targets clear of the sticky header */
   scroll-padding-top: 6rem;
+  /* Reserve the scrollbar gutter permanently, so locking scroll behind a
+     modal doesn't remove it and shift the page sideways. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -298,30 +301,32 @@ a.chip:hover {
 }
 
 /* --- buttons ------------------------------------------------------------------ */
-/* Chamfered console keys: one cut corner + a hard edge hug on hover. */
+/* Machined keys: a soft radius, a hairline top highlight, and a shadow that
+   lifts on hover and collapses on press. No clip-path anywhere — it used to
+   cut through the border and, worse, clipped the focus ring out of existence
+   (outline-offset draws outside the border box, which the clip removed). */
 
 .button {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.72rem 1.4rem;
-  border: 1.5px solid var(--accent);
+  gap: 0.5rem;
+  padding: 0.7rem 1.35rem;
+  border: 1px solid var(--accent-strong);
+  border-radius: 6px;
   background: var(--accent);
   color: var(--accent-contrast);
   font-weight: 650;
   font-size: 0.95rem;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.005em;
   text-decoration: none;
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    0 1px 2px rgb(0 0 0 / 0.16),
+    0 6px 16px -6px rgb(0 0 0 / 0.3);
   transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out),
-    transform var(--dur) var(--ease-out);
-}
-
-.button::after {
-  content: '→';
-  font-family: var(--font-mono);
-  transition: transform var(--dur) var(--ease-out);
+    border-color var(--dur) var(--ease-out), transform var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out);
 }
 
 .button:hover {
@@ -329,24 +334,51 @@ a.chip:hover {
   border-color: var(--accent-strong);
   color: var(--accent-contrast);
   transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    0 2px 4px rgb(0 0 0 / 0.18),
+    0 12px 26px -8px rgb(0 0 0 / 0.42);
 }
 
-.button:hover::after {
-  transform: translateX(3px);
+/* Pressing pushes the key back into the surface. */
+.button:active {
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.22);
 }
 
+/* A ghost button has no fill, so its border is the only thing marking the
+   control's bounds — it has to clear WCAG 1.4.11's 3:1. Neither --line-strong
+   (1.8:1 light) nor the semi-transparent --accent-line (1.7:1) is enough;
+   the solid accent gives 6.3:1 light / 9.4:1 dark. */
 .button--ghost {
   background: transparent;
   color: var(--accent);
-}
-
-.button--ghost::after {
-  content: none;
+  border-color: var(--accent);
+  box-shadow: none;
 }
 
 .button--ghost:hover {
   background: var(--accent-soft);
+  border-color: var(--accent);
   color: var(--accent-strong);
+  box-shadow: none;
+}
+
+.button--ghost:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Opt-in trailing arrow, as real markup rather than a ::after forced onto
+   every button — it belongs on "go forward" actions, not on all of them.
+   Usage: <a class="button">Label <span class="button-arrow" aria-hidden="true">→</span></a> */
+.button-arrow {
+  font-family: var(--font-mono);
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.button:hover .button-arrow {
+  transform: translateX(3px);
 }
 
 /* --- article prose -------------------------------------------------------------- */
