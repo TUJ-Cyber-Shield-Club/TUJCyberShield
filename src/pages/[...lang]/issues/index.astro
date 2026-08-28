@@ -1,40 +1,39 @@
 ---
-import Base from '../../layouts/Base.astro';
-import DemoBanner from '../../components/DemoBanner.astro';
+import { localeStaticPaths, useTranslations } from '../../../i18n/utils';
+import Base from '../../../layouts/Base.astro';
+import DemoBanner from '../../../components/DemoBanner.astro';
+import { articleSlug, collectIssues, getPublishedArticles, readingTime, withBase } from '../../../utils/articles';
 import {
-  collectIssues,
-  formatDate,
-  getPublishedArticles,
-  issueLabel,
-  readingTime,
-  withBase,
-} from '../../utils/articles';
+  formatDateIn,
+  issueLabelIn,
+  issueMonthShortIn,
+  localePath,
+} from '../../../i18n/utils';
 
-const articles = await getPublishedArticles();
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const articles = await getPublishedArticles(lang);
 const issues = collectIssues(articles);
 const hasDemo = articles.some((a) => a.data.demo);
 
 // "2026-07" -> { month: "JUL", year: "2026" } for the shelf spines.
 const spine = (issue: string) => {
   const [year] = issue.split('-');
-  const label = issueLabel(issue); // "July 2026"
-  return { month: label.split(' ')[0].slice(0, 3).toUpperCase(), year };
+  return { month: issueMonthShortIn(lang, issue), year };
 };
+
+export const getStaticPaths = localeStaticPaths;
 ---
 
-<Base
-  title="Issue archive · Cyber Shield"
-  description="Every monthly issue of the Cyber Shield newsletter, from the latest back to the first."
->
+<Base lang={lang} title={t('issues.title')} description={t('issues.description')}>
   <header class="masthead reveal">
-    <p class="kick">Bound volumes</p>
-    <h1>Issue archive</h1>
-    <p class="intro meta">
-      Cyber Shield publishes one issue a month. Here is every issue so far, newest first.
-    </p>
+    <p class="kick">{t('issues.kick')}</p>
+    <h1>{t('issues.h1')}</h1>
+    <p class="intro meta">{t('issues.intro')}</p>
   </header>
 
-  {hasDemo && <DemoBanner context="issue" />}
+  {hasDemo && <DemoBanner context="issue" lang={lang} />}
 
   <div class="issues">
     {
@@ -50,22 +49,27 @@ const spine = (issue: string) => {
                 <span class="spine-year">{s.year}</span>
               </p>
               <h2 id={`issue-${issue}`}>
-                <a href={withBase(`/issues/${issue}/`)}>{issueLabel(issue)}</a>
+                <a href={withBase(localePath(lang, `/issues/${issue}/`))}>
+                  {issueLabelIn(lang, issue)}
+                </a>
               </h2>
               <p class="databar">
                 <span>
-                  {inIssue.length} article{inIssue.length === 1 ? '' : 's'}
+                  {inIssue.length}{' '}
+                  {inIssue.length === 1 ? t('issues.articles_one') : t('issues.articles_other')}
                 </span>
-                <span>Vol {issue}</span>
+                <span>{t('card.vol', { issue })}</span>
               </p>
             </header>
             <ul>
               {inIssue.map((article) => (
                 <li>
-                  <a href={withBase(`/articles/${article.id}/`)}>{article.data.title}</a>
+                  <a href={withBase(localePath(lang, `/articles/${articleSlug(article)}/`))}>
+                    {article.data.title}
+                  </a>
                   <p class="meta">
-                    {article.data.authors.join(', ')} · {formatDate(article.data.pubDate)} ·{' '}
-                    {readingTime(article.body)} min read
+                    {article.data.authors.join(', ')} · {formatDateIn(lang, article.data.pubDate)} ·{' '}
+                    {t('card.minRead', { count: readingTime(article.body) })}
                   </p>
                 </li>
               ))}

@@ -1,27 +1,67 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
 
 export type Article = CollectionEntry<'articles'>;
 
 /**
- * All articles that should appear on the site, newest first.
- * Drafts are excluded from production builds (pages, sitemap, search)
- * but stay visible in `astro dev` so writers can preview them locally.
+ * Article files live at src/content/articles/<locale>/<slug>.md, so the
+ * collection id is "ja/2026-07-foo". The slug is the part after the locale —
+ * shared across languages, so /articles/foo/ and /ja/articles/foo/ are the
+ * same story and hreflang lines up.
  */
-export async function getPublishedArticles(): Promise<Article[]> {
+export function articleSlug(article: Article): string {
+  const [, ...rest] = article.id.split('/');
+  return rest.join('/') || article.id;
+}
+
+/**
+ * All articles for one locale, newest first.
+ *
+ * Falls back to the English file when a locale is missing a translation, so a
+ * partially translated language still renders a complete site rather than a
+ * pile of 404s. A locale should not be listed in src/i18n/config.ts until it
+ * is fully translated, so in practice this is a safety net, not a strategy.
+ *
+ * Drafts are excluded from production builds (pages, sitemap, search) but stay
+ * visible in `astro dev` so writers can preview them locally.
+ */
+export async function getPublishedArticles(lang: LocaleCode = DEFAULT_LOCALE): Promise<Article[]> {
   const all = await getCollection('articles', ({ data }) => {
     return import.meta.env.PROD ? data.draft !== true : true;
   });
-  return all.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  const inLocale = new Map<string, Article>();
+  for (const article of all) {
+    const [locale] = article.id.split('/');
+    const slug = articleSlug(article);
+    if (locale === lang) inLocale.set(slug, article);
+    else if (locale === DEFAULT_LOCALE && !inLocale.has(slug)) inLocale.set(slug, article);
+  }
+
+  return [...inLocale.values()].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 }
 
-/** Word-count based reading time, floored at 1 minute. */
+/**
+ * Reading time in minutes, floored at 1.
+ *
+ * Counts CJK characters separately from space-delimited words: Chinese,
+ * Japanese and Thai don't put spaces between words, so a whitespace split
+ * scores a full article as a handful of "words" and every translation would
+ * claim to be a 1-minute read. ~200 words/min for scripts that use spaces,
+ * ~450 characters/min for CJK, which is the usual published range.
+ */
 export function readingTime(body: string | undefined): number {
-  const words = (body ?? '')
+  const text = (body ?? '')
     .replace(/^---[\s\S]*?---/, '') // strip frontmatter if present
-    .replace(/[#>*_`~[\]()!-]/g, ' ')
+    .replace(/[#>*_`~[\]()!-]/g, ' ');
+
+  const cjk = text.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u0e00-\u0e7f]/g)?.length ?? 0;
+  const words = text
+    .replace(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u0e00-\u0e7f]/g, ' ')
     .split(/\s+/)
     .filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
+
+  return Math.max(1, Math.round(words / 200 + cjk / 450));
 }
 
 /** "2026-07" -> "July 2026" */

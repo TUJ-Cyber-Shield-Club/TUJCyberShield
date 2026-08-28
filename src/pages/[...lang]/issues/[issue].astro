@@ -1,0 +1,94 @@
+---
+import { LOCALE_CODES } from '../../../i18n/config';
+import { langParam, useTranslations } from '../../../i18n/utils';
+import Base from '../../../layouts/Base.astro';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import DemoBanner from '../../../components/DemoBanner.astro';
+import { collectIssues, getPublishedArticles, withBase } from '../../../utils/articles';
+import { issueLabelIn, localePath } from '../../../i18n/utils';
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+
+const { issue } = Astro.params;
+const { inIssue } = Astro.props;
+const label = issueLabelIn(lang, issue!);
+const hasDemo = inIssue.some((a) => a.data.demo);
+const [lead, ...rest] = inIssue;
+
+export async function getStaticPaths() {
+  const out = [];
+  for (const code of LOCALE_CODES) {
+    const articles = await getPublishedArticles(code);
+    for (const issue of collectIssues(articles)) {
+      out.push({
+        params: { lang: langParam(code), issue },
+        props: { lang: code, inIssue: articles.filter((a) => a.data.issue === issue) },
+      });
+    }
+  }
+  return out;
+}
+---
+
+<Base
+  lang={lang}
+  title={t('issues.issueTitle', { issue: label })}
+  description={t('issues.issueDescription', { count: inIssue.length, label })}
+>
+  <header class="masthead reveal">
+    <p class="kick kick--center">{t('issues.issueLead', { issue: issue! })}</p>
+    <h1>{t('issues.issueH1', { label })}</h1>
+    <p class="databar masthead-meta">
+      <span>
+        <b>{inIssue.length}</b>{' '}
+        {inIssue.length === 1 ? t('issues.articles_one') : t('issues.articles_other')}
+      </span>
+      <span>{t('issues.byMembers')}</span>
+    </p>
+  </header>
+
+  {hasDemo && <DemoBanner context="issue" lang={lang} />}
+
+  <ul class="card-grid reveal">
+    {lead && <ArticleCard article={lead} headingLevel="h2" feature eager lang={lang} />}
+    {rest.map((article) => <ArticleCard article={article} headingLevel="h2" lang={lang} />)}
+  </ul>
+
+  <p class="back databar">
+    <a href={withBase(localePath(lang, '/issues/'))}>← {t('issues.allIssues')}</a>
+  </p>
+</Base>
+
+<style>
+  .masthead {
+    text-align: center;
+    max-width: 44rem;
+    margin: 0 auto 3rem;
+  }
+
+  .masthead h1 {
+    font-size: clamp(2.3rem, 5.6vw, 3.5rem);
+    margin-top: 1.15rem;
+  }
+
+  .masthead-meta {
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .back {
+    margin-top: 2.5rem;
+  }
+
+  .back a {
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .back a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
+  }
+</style>

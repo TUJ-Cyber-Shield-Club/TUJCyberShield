@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
-import { formatDate, readingTime, withBase, type Article } from '../utils/articles';
+import { articleSlug, readingTime, withBase, type Article } from '../utils/articles';
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { formatDateIn, localePath, useTranslations } from '../i18n/utils';
 
 interface Props {
   article: Article;
@@ -9,11 +11,19 @@ interface Props {
   /** Wide editorial treatment for the lead story of a section. */
   feature?: boolean;
   eager?: boolean;
+  lang?: LocaleCode;
 }
 
-const { article, headingLevel: Heading = 'h3', feature = false, eager = false } = Astro.props;
+const {
+  article,
+  headingLevel: Heading = 'h3',
+  feature = false,
+  eager = false,
+  lang = DEFAULT_LOCALE,
+} = Astro.props;
+const t = useTranslations(lang);
 const { title, description, pubDate, authors, issue, coverImage, coverAlt, draft } = article.data;
-const url = withBase(`/articles/${article.id}/`);
+const url = withBase(localePath(lang, `/articles/${articleSlug(article)}/`));
 const minutes = readingTime(article.body);
 ---
 
@@ -35,14 +45,14 @@ const minutes = readingTime(article.body);
     )
   }
   <div class="card-body">
-    {feature && <p class="kick card-kick">Cover story</p>}
+    {feature && <p class="kick card-kick">{t('card.coverStory')}</p>}
     <p class="databar card-file">
-      <span>Vol {issue}</span>
+      <span>{t('card.vol', { issue })}</span>
       <span>
-        <time datetime={pubDate.toISOString().slice(0, 10)}>{formatDate(pubDate)}</time>
+        <time datetime={pubDate.toISOString().slice(0, 10)}>{formatDateIn(lang, pubDate)}</time>
       </span>
-      <span>{minutes} min read</span>
-      {draft && <span class="card-draft">Draft preview</span>}
+      <span>{t('card.minRead', { count: minutes })}</span>
+      {draft && <span class="card-draft">{t('card.draft')}</span>}
     </p>
     <Heading>
       <a href={url}>{title}</a>
@@ -50,7 +60,7 @@ const minutes = readingTime(article.body);
     <p>{description}</p>
     <p class="meta card-byline">
       <b>{authors.join(', ')}</b>
-      <span class="card-cta" aria-hidden="true">Read briefing →</span>
+      <span class="card-cta" aria-hidden="true">{t('card.read')} →</span>
     </p>
   </div>
 </li>

@@ -1,0 +1,185 @@
+---
+// Language dropdown for the header.
+//
+// Rendered as a real <details> disclosure wrapping real <a> links, so it works
+// with no JS at all: the menu opens, and every language is a normal navigable
+// link. JS only adds the niceties — close on Esc, close on outside click.
+//
+// Each link points at the *same page* in the target language, built from the
+// current path with its locale prefix swapped, so switching language keeps you
+// where you are instead of dumping you on the home page.
+import { LOCALES, getLocale, type LocaleCode } from '../i18n/config';
+import { localePath, stripLocale, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: LocaleCode;
+  /**
+   * Where each language entry should point, as a root-relative path. Defaults
+   * to the current page. Pages with no per-locale twin — 404 — pass '/' so the
+   * picker doesn't offer links to URLs that were never generated.
+   */
+  target?: string;
+}
+
+const { lang, target } = Astro.props;
+const t = useTranslations(lang);
+const current = getLocale(lang);
+const here = target ?? stripLocale(Astro.url.pathname);
+---
+
+<details class="lang" data-lang-picker>
+  <summary aria-label={t('lang.choose')} title={t('lang.choose')}>
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"></path>
+    </svg>
+    <span class="lang-code">{current.native}</span>
+    <svg class="lang-caret" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6"></path>
+    </svg>
+  </summary>
+
+  <ul class="lang-menu">
+    {
+      LOCALES.map((locale) => (
+        <li>
+          <a
+            href={localePath(locale.code, here)}
+            hreflang={locale.bcp47}
+            lang={locale.bcp47}
+            aria-current={locale.code === lang ? 'true' : undefined}
+          >
+            <span class="lang-native">{locale.native}</span>
+            <span class="lang-name">{locale.name}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</details>
+
+<style>
+  .lang {
+    position: relative;
+  }
+
+  .lang summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.3rem;
+    padding-inline: 0.6rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    white-space: nowrap;
+    transition: border-color var(--dur) var(--ease-out), background var(--dur) var(--ease-out),
+      color var(--dur) var(--ease-out);
+  }
+
+  .lang summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lang summary:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .lang summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .lang-caret {
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .lang[open] .lang-caret {
+    transform: rotate(180deg);
+  }
+
+  .lang-menu {
+    position: absolute;
+    z-index: 60;
+    top: calc(100% + 0.45rem);
+    right: 0;
+    min-width: 12.5rem;
+    max-height: min(70vh, 26rem);
+    overflow-y: auto;
+    margin: 0;
+    padding: 0.35rem;
+    list-style: none;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .lang-menu a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 5px;
+    color: var(--text);
+    text-decoration: none;
+    transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+  }
+
+  .lang-menu a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .lang-menu a[aria-current='true'] {
+    background: var(--accent);
+    color: var(--accent-contrast);
+  }
+
+  .lang-native {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .lang-name {
+    margin-inline-start: auto;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.68;
+  }
+
+  @media (max-width: 34rem) {
+    .lang-menu {
+      right: auto;
+      left: 0;
+    }
+  }
+</style>
+
+<script>
+  // Progressive enhancement only — without this the <details> still opens and
+  // every entry is still a working link.
+  for (const picker of document.querySelectorAll<HTMLDetailsElement>('[data-lang-picker]')) {
+    picker.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && picker.open) {
+        picker.open = false;
+        picker.querySelector('summary')?.focus();
+      }
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Node;
+    for (const picker of document.querySelectorAll<HTMLDetailsElement>('[data-lang-picker]')) {
+      if (picker.open && !picker.contains(target)) picker.open = false;
+    }
+  });
+</script>

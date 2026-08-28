@@ -1,4 +1,5 @@
 import type { ImageMetadata } from 'astro';
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EDIT ME: the club team shown on the "Meet the team" page.
@@ -25,10 +26,17 @@ export interface SocialLink {
   href: string;
 }
 
+/**
+ * Role and bio per locale. `en` is required; any locale you leave out falls
+ * back to English, which is why a language should not be listed in
+ * src/i18n/config.ts until every member here has been translated.
+ */
+export type Localized = { en: string } & Partial<Record<LocaleCode, string>>;
+
 export interface TeamMember {
   name: string;
-  role: string;
-  bio: string;
+  role: Localized;
+  bio: Localized;
   avatar: ImageMetadata;
   links?: SocialLink[];
   /**
@@ -46,11 +54,19 @@ export interface TeamMember {
   authorNames?: string[];
 }
 
+/** Pick the text for a locale, falling back to English. */
+export function localized(field: Localized, lang: LocaleCode = DEFAULT_LOCALE): string {
+  return field[lang] ?? field[DEFAULT_LOCALE];
+}
+
 export const team: TeamMember[] = [
   {
     name: 'Carl Masters',
-    role: 'Club President',
-    bio: "Hello! I'm Carl Masters, a second-year cybersecurity major at TUJ and founder of the Cyber Shield club. I'm passionate about digital security, the responsible development of AI, and hackathons and tech events across Tokyo. Feel free to connect with me via email or LinkedIn, or check out my portfolio below!",
+    role: { en: 'Club President', ja: 'クラブ会長' },
+    bio: {
+      en: "Hello! I'm Carl Masters, a second-year cybersecurity major at TUJ and founder of the Cyber Shield club. I'm passionate about digital security, the responsible development of AI, and hackathons and tech events across Tokyo. Feel free to connect with me via email or LinkedIn, or check out my portfolio below!",
+      ja: "こんにちは、Carl Masters です。TUJ でサイバーセキュリティを専攻する2年生で、Cyber Shield クラブの創設者です。デジタルセキュリティ、責任ある AI 開発、そして東京各地のハッカソンや技術イベントに情熱を注いでいます。メールや LinkedIn でお気軽にご連絡ください。下のポートフォリオもぜひご覧ください。",
+    },
     avatar: carlMasters,
     links: [
       { type: 'email', href: 'mailto:carl.masters.professional@protonmail.com' },
@@ -61,8 +77,11 @@ export const team: TeamMember[] = [
   },
   {
     name: 'Ruoan Li',
-    role: 'Vice President',
-    bio: "I'm Ruoan, a second-year Computer Science major. I'm passionate about coding and understanding how secure systems work. Always down to chat about CS projects or collaborate on tech challenges!",
+    role: { en: 'Vice President', ja: '副会長' },
+    bio: {
+      en: "I'm Ruoan, a second-year Computer Science major. I'm passionate about coding and understanding how secure systems work. Always down to chat about CS projects or collaborate on tech challenges!",
+      ja: "Ruoan です。コンピューターサイエンス専攻の2年生です。コードを書くことと、安全なシステムの仕組みを理解することに情熱をもっています。CS のプロジェクトの話や、技術的な課題での協力はいつでも大歓迎です。",
+    },
     avatar: ruoanLi,
     links: [
       { type: 'email', href: 'mailto:ruoanli.an@gmail.com' },
@@ -72,8 +91,11 @@ export const team: TeamMember[] = [
   },
   {
     name: 'Uchida Terence',
-    role: 'Researcher',
-    bio: "Hi, Terence here, a third year Computer Science major at TUJ. Currently, doing an intern at a HK startup and working part-time at Brandy Melville.",
+    role: { en: 'Researcher', ja: 'リサーチャー' },
+    bio: {
+      en: "Hi, Terence here, a third year Computer Science major at TUJ. Currently, doing an intern at a HK startup and working part-time at Brandy Melville.",
+      ja: "こんにちは、Terence です。TUJ でコンピューターサイエンスを専攻する3年生です。現在は香港のスタートアップでインターンをしながら、Brandy Melville でアルバイトもしています。",
+    },
     avatar: uchidaTerence,
     links: [
       { type: 'email', href: 'mailto:uchidaterence@gmail.com' },
@@ -82,8 +104,11 @@ export const team: TeamMember[] = [
   },
   {
     name: 'Bhushith Gujjala Hari',
-    role: 'Writer',
-    bio: "Hello, I'm a passionate computer science student who is interested in Machine Learning and Game Development. I am also the leader of the CS Society and help organize hackathons and other events. I am currently in my fourth year Computer Science major with experience from multiple solo projects, 2 research projects in Machine Learning, and two internships. Outside of work and University, I love to make pixel art and code games as a hobby.",
+    role: { en: 'Writer', ja: 'ライター' },
+    bio: {
+      en: "Hello, I'm a passionate computer science student who is interested in Machine Learning and Game Development. I am also the leader of the CS Society and help organize hackathons and other events. I am currently in my fourth year Computer Science major with experience from multiple solo projects, 2 research projects in Machine Learning, and two internships. Outside of work and University, I love to make pixel art and code games as a hobby.",
+      ja: "こんにちは。機械学習とゲーム開発に関心をもつ、コンピューターサイエンスの学生です。CS Society の代表も務めており、ハッカソンなどのイベント運営にも携わっています。現在は4年生で、複数の個人プロジェクト、機械学習の研究プロジェクト2件、インターンシップ2回の経験があります。大学や仕事を離れたときは、ドット絵を描いたり、趣味でゲームを作ったりしています。",
+    },
     avatar: bhushithGujjalaHari,
     links: [
       { type: 'linkedin', href: 'https://www.linkedin.com/in/bhushith-gujjala-hari-9a5876276' },

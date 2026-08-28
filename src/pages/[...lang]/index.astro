@@ -1,18 +1,17 @@
 ---
+import { localeStaticPaths, useTranslations } from '../../i18n/utils';
 import { Image } from 'astro:assets';
-import Base from '../layouts/Base.astro';
-import ArticleCard from '../components/ArticleCard.astro';
-import DemoBanner from '../components/DemoBanner.astro';
-import shield from '../assets/logo-shield.png';
-import {
-  collectIssues,
-  collectTags,
-  getPublishedArticles,
-  issueLabel,
-  withBase,
-} from '../utils/articles';
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import DemoBanner from '../../components/DemoBanner.astro';
+import shield from '../../assets/logo-shield.png';
+import { collectIssues, collectTags, getPublishedArticles, withBase } from '../../utils/articles';
+import { issueLabelIn, localePath } from '../../i18n/utils';
 
-const articles = await getPublishedArticles();
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const articles = await getPublishedArticles(lang);
 const latestIssue = articles[0]?.data.issue;
 const latestIssueArticles = articles.filter((a) => a.data.issue === latestIssue);
 const [coverStory, ...restOfIssue] = latestIssueArticles;
@@ -20,33 +19,30 @@ const earlier = articles.filter((a) => a.data.issue !== latestIssue).slice(0, 6)
 const hasDemo = articles.some((a) => a.data.demo);
 const issues = collectIssues(articles);
 const tags = collectTags(articles);
+
+export const getStaticPaths = localeStaticPaths;
 ---
 
-<Base
-  title="Cyber Shield: digital safety, in plain language"
-  description="Monthly, plain-language security advice from TUJ's Cyber Shield Club: phishing, passwords, scams, and privacy explained for everyday students."
->
+<Base lang={lang} title={t('home.title')} description={t('home.description')}>
   <section class="hero">
     <div class="hero-text">
-      <p class="kick">A TUJ student publication</p>
+      <p class="kick">{t('home.kick')}</p>
       <h1>
-        Digital safety,<br />
-        <em>in plain language.</em>
+        {t('home.h1.a')}<br />
+        <em>{t('home.h1.b')}</em>
       </h1>
-      <p class="lede">
-        Every month, Cyber Shield students research the scams, leaks, and tricks aimed at people
-        like us, then explain exactly what to do about them. No jargon, no fear, no tech degree
-        required.
-      </p>
+      <p class="lede">{t('home.lede')}</p>
       <div class="cta">
         {
           latestIssue && (
-            <a class="button" href={withBase(`/issues/${latestIssue}/`)}>
-              Read the latest issue <span class="button-arrow" aria-hidden="true">→</span>
+            <a class="button" href={withBase(localePath(lang, `/issues/${latestIssue}/`))}>
+              {t('home.cta.latest')} <span class="button-arrow" aria-hidden="true">→</span>
             </a>
           )
         }
-        <a class="button button--ghost" href={withBase('/about/')}>About the club</a>
+        <a class="button button--ghost" href={withBase(localePath(lang, '/about/'))}>
+          {t('home.cta.about')}
+        </a>
       </div>
     </div>
 
@@ -61,36 +57,39 @@ const tags = collectTags(articles);
         />
       </div>
       <p class="databar crest-bar">
-        <span>Monthly</span>
-        <span>Plain language</span>
-        <span>Student run</span>
+        <span>{t('home.crest.monthly')}</span>
+        <span>{t('home.crest.plain')}</span>
+        <span>{t('home.crest.student')}</span>
       </p>
     </div>
   </section>
 
   <div class="ledger reveal" role="list">
-    <p role="listitem"><b>{articles.length}</b> briefings filed</p>
-    <p role="listitem"><b>{issues.length}</b> {issues.length === 1 ? 'issue' : 'issues'} published</p>
-    <p role="listitem"><b>{tags.length}</b> topics covered</p>
-    <p role="listitem"><b>1</b> issue a month</p>
+    <p role="listitem"><b>{articles.length}</b> {t('home.ledger.briefings')}</p>
+    <p role="listitem">
+      <b>{issues.length}</b>{' '}
+      {issues.length === 1 ? t('home.ledger.issues_one') : t('home.ledger.issues_other')}
+    </p>
+    <p role="listitem"><b>{tags.length}</b> {t('home.ledger.topics')}</p>
+    <p role="listitem"><b>1</b> {t('home.ledger.cadence')}</p>
   </div>
 
-  {hasDemo && <DemoBanner context="list" />}
+  {hasDemo && <DemoBanner context="list" lang={lang} />}
 
   {
     latestIssue && (
       <section class="section reveal" aria-labelledby="latest-heading">
         <h2 class="kick kick--lead" id="latest-heading">
-          The {issueLabel(latestIssue)} issue
+          {t('home.latestIssue', { issue: issueLabelIn(lang, latestIssue) })}
         </h2>
         <ul class="card-grid">
-          {coverStory && <ArticleCard article={coverStory} feature eager />}
+          {coverStory && <ArticleCard article={coverStory} feature eager lang={lang} />}
           {restOfIssue.map((article, i) => (
-            <ArticleCard article={article} headingLevel="h3" />
+            <ArticleCard article={article} headingLevel="h3" lang={lang} />
           ))}
         </ul>
         <p class="more databar">
-          <a href={withBase(`/issues/${latestIssue}/`)}>Everything in this issue</a>
+          <a href={withBase(localePath(lang, `/issues/${latestIssue}/`))}>{t('home.everything')}</a>
         </p>
       </section>
     )
@@ -100,11 +99,11 @@ const tags = collectTags(articles);
     earlier.length > 0 && (
       <section class="section reveal" aria-labelledby="recent-heading">
         <h2 class="kick kick--lead" id="recent-heading">
-          From the archive
+          {t('home.archive')}
         </h2>
         <ul class="card-grid">
           {earlier.map((article) => (
-            <ArticleCard article={article} />
+            <ArticleCard article={article} lang={lang} />
           ))}
         </ul>
       </section>
@@ -113,8 +112,8 @@ const tags = collectTags(articles);
 
   <section class="section reveal">
     <p class="more databar closing">
-      <a href={withBase('/articles/')}>Browse all articles</a>
-      <a href={withBase('/issues/')}>Issue archive</a>
+      <a href={withBase(localePath(lang, '/articles/'))}>{t('home.browseAll')}</a>
+      <a href={withBase(localePath(lang, '/issues/'))}>{t('home.issueArchive')}</a>
     </p>
   </section>
 </Base>

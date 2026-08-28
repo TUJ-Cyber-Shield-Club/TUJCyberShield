@@ -1,22 +1,21 @@
 ---
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { useTranslations } from '../i18n/utils';
+
 interface Props {
   /** Tailors the wording to where the banner appears. */
   context?: 'article' | 'issue' | 'list';
+  lang?: LocaleCode;
 }
 
-const { context = 'article' } = Astro.props;
+const { context = 'article', lang = DEFAULT_LOCALE } = Astro.props;
+const t = useTranslations(lang);
 
-const message = {
-  article:
-    'This is a demo article: a sample template that shows the layout and voice of the site, not a real Cyber Shield publication.',
-  issue:
-    'This is a demo issue: the articles below are sample templates, not real Cyber Shield publications.',
-  list: 'The articles shown here are demo templates, not real Cyber Shield publications yet.',
-}[context];
+const message = t(`demo.${context}` as 'demo.article' | 'demo.issue' | 'demo.list');
 ---
 
-<aside class="demo-banner" role="note" aria-label="Demo content notice">
-  <span class="demo-badge">Demo</span>
+<aside class="demo-banner" role="note" aria-label={t('demo.aria')}>
+  <span class="demo-badge">{t('demo.badge')}</span>
   <p>{message}</p>
 </aside>
 

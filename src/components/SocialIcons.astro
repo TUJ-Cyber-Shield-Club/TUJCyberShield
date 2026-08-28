@@ -1,13 +1,17 @@
 ---
 import type { SocialLink } from '../data/team';
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { useTranslations } from '../i18n/utils';
 
 interface Props {
   links?: SocialLink[];
   /** Person's name, used to build accessible labels. */
   name?: string;
+  lang?: LocaleCode;
 }
 
-const { links = [], name } = Astro.props;
+const { links = [], name, lang = DEFAULT_LOCALE } = Astro.props;
+const t = useTranslations(lang);
 
 // Icons as inline SVG (24x24). Brand marks use a filled `path`; outline icons
 // set `stroke: true` and provide raw `body` markup. Add a new entry here to
@@ -47,11 +51,16 @@ const ICONS: Record<
 
 {
   links.length > 0 && (
-    <ul class="social" aria-label={name ? `${name}'s links` : 'Links'}>
+    <ul class="social" aria-label={name ? t('team.links', { name }) : t('social.links')}>
       {links.map(({ type, href }) => {
         const icon = ICONS[type];
         const isMail = href.startsWith('mailto:');
-        const label = type === 'email' ? `Email ${name ?? ''}`.trim() : `${name ? name + ' on ' : ''}${icon.label}`;
+        // Platform names (GitHub, LinkedIn) stay as-is; only the sentence
+        // around them is translated.
+        const label =
+          type === 'email'
+            ? t('team.emailPerson', { name: name ?? '' }).trim()
+            : t('team.personOn', { name: name ?? '', platform: icon.label }).trim();
         return (
           <li>
             <a

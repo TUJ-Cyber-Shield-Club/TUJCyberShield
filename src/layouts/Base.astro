@@ -6,6 +6,8 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { withBase } from '../utils/articles';
+import { DEFAULT_LOCALE, LOCALES, getLocale, type LocaleCode } from '../i18n/config';
+import { localePath, stripLocale, useTranslations } from '../i18n/utils';
 
 interface Props {
   title: string;
@@ -13,16 +15,43 @@ interface Props {
   /** Absolute URL for the social-preview image. Defaults to the club logo card. */
   ogImage?: string;
   ogType?: 'website' | 'article';
+  /** Which language this page is rendered in. */
+  lang?: LocaleCode;
+  /** Override for where the language picker points; see LanguagePicker. */
+  langTarget?: string;
 }
 
-const { title, description, ogImage, ogType = 'website' } = Astro.props;
+const {
+  title,
+  description,
+  ogImage,
+  ogType = 'website',
+  lang = DEFAULT_LOCALE,
+  langTarget,
+} = Astro.props;
+const t = useTranslations(lang);
+const locale = getLocale(lang);
 
 const site = Astro.site!;
 const canonical = new URL(Astro.url.pathname, site);
 const socialImage = ogImage ?? new URL(withBase('/og-default.png'), site).href;
+
+// Same page, every language — for hreflang and the "read in English" escape
+// hatch on translated pages.
+const here = langTarget ?? stripLocale(Astro.url.pathname);
+
+/** "ja" -> "ja_JP", "zh-Hans" -> "zh_Hans". Open Graph uses underscores. */
+const ogLocale = (bcp47: string) => {
+  const region: Record<string, string> = { en: 'en_US', ja: 'ja_JP' };
+  return region[bcp47] ?? bcp47.replace('-', '_');
+};
+const alternates = LOCALES.map((l) => ({
+  ...l,
+  href: new URL(localePath(l.code, here), site).href,
+}));
 ---
 
-<html lang="en">
+<html lang={locale.bcp47} dir={locale.dir}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,12 +66,27 @@ const socialImage = ogImage ?? new URL(withBase('/og-default.png'), site).href;
 
     <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
 
+    {/* Tell search engines these pages are translations of each other. */}
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.bcp47} href={alt.href} />)}
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={new URL(localePath(DEFAULT_LOCALE, here), site).href}
+    />
+
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:site_name" content="Cyber Shield" />
+    {/* Open Graph wants underscored locales (ja_JP), not BCP-47 (ja). */}
+    <meta property="og:locale" content={ogLocale(locale.bcp47)} />
+    {
+      alternates
+        .filter((alt) => alt.code !== lang)
+        .map((alt) => <meta property="og:locale:alternate" content={ogLocale(alt.bcp47)} />)
+    }
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -65,12 +109,22 @@ const socialImage = ogImage ?? new URL(withBase('/og-default.png'), site).href;
     </script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <Header />
+    <a class="skip-link" href="#main">{t('skip.content')}</a>
+    <Header lang={lang} langTarget={langTarget} />
     <main id="main" class="wrap">
+      {
+        lang !== DEFAULT_LOCALE && (
+          <p class="mt-notice">
+            <span>{t('mt.notice')}</span>
+            <a href={localePath(DEFAULT_LOCALE, here)} hreflang="en" lang="en">
+              {t('mt.viewEnglish')}
+            </a>
+          </p>
+        )
+      }
       <slot />
     </main>
-    <Footer />
+    <Footer lang={lang} />
 
     <script>
       // Site-wide ambient behavior, progressive enhancement only:

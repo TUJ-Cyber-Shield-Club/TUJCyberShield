@@ -1,5 +1,15 @@
 ---
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang?: LocaleCode;
+}
+
 import { withBase } from '../utils/articles';
+
+const { lang = DEFAULT_LOCALE } = Astro.props;
+const t = useTranslations(lang);
 
 // Pagefind's UI bundle is generated into dist/pagefind/ by the postbuild step,
 // so it only exists after `npm run build`. The loader below fails quietly in
@@ -8,10 +18,16 @@ const pagefindBase = withBase('/pagefind');
 ---
 
 <div class="search-block">
-  <label class="kick" for="search-box-input" id="search-label">Search the archive</label>
-  <div id="search" data-base={pagefindBase}></div>
+  <label class="kick" for="search-box-input" id="search-label">{t('search.kick')}</label>
+  <div
+    id="search"
+    data-base={pagefindBase}
+    data-placeholder={t('search.placeholder')}
+    data-build-only={t('search.buildOnly')}
+  >
+  </div>
   <noscript>
-    <p class="meta">Search needs JavaScript. No problem, every article is listed below.</p>
+    <p class="meta">{t('search.noJs')}</p>
   </noscript>
 </div>
 
@@ -27,14 +43,18 @@ const pagefindBase = withBase('/pagefind');
         element: '#search',
         showImages: false,
         showSubResults: true,
-        translations: { placeholder: 'Search articles, e.g. “phishing” or “passwords”' },
+        translations: { placeholder: container.dataset.placeholder ?? '' },
       });
       const input = container.querySelector('input');
       if (input) input.id = 'search-box-input';
     };
     script.onerror = () => {
-      container.innerHTML =
-        '<p class="meta">Search will be available on the published site (the index is generated at build time).</p>';
+      // Escaped by textContent rather than innerHTML: the string is ours, but
+      // it now varies per locale, so treat it as data.
+      const note = document.createElement('p');
+      note.className = 'meta';
+      note.textContent = container.dataset.buildOnly ?? '';
+      container.replaceChildren(note);
     };
     document.head.append(script);
 

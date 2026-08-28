@@ -1,0 +1,85 @@
+---
+// Fully rendered 404, one per locale — chrome, body and links all translated.
+// The host serves the flat /404.html for unmatched paths; that file redirects
+// here when the missed URL carried a locale prefix. See src/pages/404.astro.
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import shield from '../../assets/logo-shield.png';
+import { withBase } from '../../utils/articles';
+import { PREFIXED_LOCALES } from '../../i18n/config';
+import { localePath, useTranslations } from '../../i18n/utils';
+
+// Only the prefixed locales. The default locale's 404 is the flat
+// src/pages/404.astro, which is the file the host actually serves; emitting it
+// here too would collide on the same /404 route.
+export function getStaticPaths() {
+  return PREFIXED_LOCALES.map((code) => ({ params: { lang: code }, props: { lang: code } }));
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<Base lang={lang} langTarget="/" title={t('notFound.title')} description={t('notFound.description')}>
+  <div class="lost">
+    <p class="err-code" aria-hidden="true">404</p>
+    <div class="lost-mark corner-frame">
+      <Image src={shield} alt="" width="120" height="120" loading="eager" />
+    </div>
+    <p class="kick kick--center">{t('notFound.kick')}</p>
+    <h1>{t('notFound.h1')}</h1>
+    <p class="meta">{t('notFound.body')}</p>
+    <div class="cta">
+      <a class="button" href={withBase(localePath(lang, '/'))}>{t('notFound.home')}</a>
+      <a class="button button--ghost" href={withBase(localePath(lang, '/articles/'))}>
+        {t('notFound.browse')}
+      </a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .lost {
+    text-align: center;
+    max-width: 34rem;
+    margin-inline: auto;
+    padding-block: clamp(2rem, 8vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.1rem;
+  }
+
+  /* the fault code: a huge hollow readout behind the shield */
+  .err-code {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: clamp(5rem, 16vw, 8.5rem);
+    line-height: 0.85;
+    letter-spacing: 0.02em;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--line-strong);
+    opacity: 0.6;
+    margin-bottom: -2.5rem;
+  }
+
+  .lost-mark {
+    position: relative;
+    padding: 1rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+  }
+
+  .cta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.75rem;
+  }
+</style>

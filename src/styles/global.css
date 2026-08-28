@@ -94,6 +94,9 @@ h4 {
   line-height: 1.08;
   letter-spacing: -0.022em;
   text-wrap: balance;
+  /* Japanese must not break before closing brackets or after opening ones;
+     `strict` applies the full kinsoku rules rather than the loose default. */
+  line-break: strict;
 }
 
 a {

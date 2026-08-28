@@ -1,5 +1,15 @@
 ---
 import { withBase } from '../utils/articles';
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { localePath, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang?: LocaleCode;
+}
+
+const { lang = DEFAULT_LOCALE } = Astro.props;
+const t = useTranslations(lang);
+const L = (path: string) => withBase(localePath(lang, path));
 
 const year = new Date().getFullYear();
 const joinForm =
@@ -11,29 +21,26 @@ const joinForm =
     <div class="cols">
       <div class="brand-col">
         <p class="kick" aria-hidden="true">Cyber Shield</p>
-        <p class="blurb">
-          A student publication from the TUJ Cyber Shield Club: plain-language digital safety for
-          everyday students, one issue a month.
-        </p>
+        <p class="blurb">{t('footer.blurb')}</p>
       </div>
-      <nav aria-label="Footer">
-        <p class="nav-label">Explore</p>
+      <nav aria-label={t('footer.aria')}>
+        <p class="nav-label">{t('footer.explore')}</p>
         <ul>
-          <li><a href={withBase('/articles/')}>Articles</a></li>
-          <li><a href={withBase('/issues/')}>Issues</a></li>
-          <li><a href={withBase('/team/')}>Meet the team</a></li>
-          <li><a href={withBase('/about/')}>About the club</a></li>
+          <li><a href={L('/articles/')}>{t('nav.articles')}</a></li>
+          <li><a href={L('/issues/')}>{t('nav.issues')}</a></li>
+          <li><a href={L('/team/')}>{t('footer.meetTeam')}</a></li>
+          <li><a href={L('/about/')}>{t('footer.aboutClub')}</a></li>
         </ul>
       </nav>
       <div class="contact-col">
-        <p class="nav-label">Get involved</p>
+        <p class="nav-label">{t('footer.getInvolved')}</p>
         <ul>
           <li>
             <a href="https://www.instagram.com/tuj_cyber_shield_club/" target="_blank" rel="noopener"
               >@tuj_cyber_shield_club</a
             >
           </li>
-          <li><a href={joinForm} target="_blank" rel="noopener">Join the club</a></li>
+          <li><a href={joinForm} target="_blank" rel="noopener">{t('header.join')}</a></li>
         </ul>
       </div>
     </div>
@@ -41,9 +48,9 @@ const joinForm =
     <p class="marquee" aria-hidden="true">CYBER&nbsp;SHIELD</p>
 
     <p class="fine databar">
-      <span>© {year} TUJ Cyber Shield Club</span>
-      <span>Written by students, for students</span>
-      <span>End of transmission</span>
+      <span>{t('footer.copyright', { year })}</span>
+      <span>{t('footer.byStudents')}</span>
+      <span>{t('footer.end')}</span>
     </p>
   </div>
 </footer>

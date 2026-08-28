@@ -1,0 +1,113 @@
+---
+import { LOCALE_CODES } from '../../../i18n/config';
+import { langParam, useTranslations } from '../../../i18n/utils';
+import Base from '../../../layouts/Base.astro';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import DemoBanner from '../../../components/DemoBanner.astro';
+import { collectTags, getPublishedArticles, withBase } from '../../../utils/articles';
+import { localePath, tagLabel } from '../../../i18n/utils';
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+
+const { tag } = Astro.params;
+const { tagged } = Astro.props;
+const { allTags } = Astro.props;
+const hasDemo = tagged.some((a) => a.data.demo);
+
+export async function getStaticPaths() {
+  const out = [];
+  for (const code of LOCALE_CODES) {
+    const articles = await getPublishedArticles(code);
+    for (const tag of collectTags(articles)) {
+      out.push({
+        params: { lang: langParam(code), tag },
+        props: {
+          lang: code,
+          tagged: articles.filter((a) => a.data.tags.includes(tag)),
+          allTags: collectTags(articles),
+        },
+      });
+    }
+  }
+  return out;
+}
+---
+
+<Base
+  lang={lang}
+  title={t('tags.title', { tag: tag! })}
+  description={t('tags.description', { tag: tag! })}
+>
+  <header class="masthead">
+    <p class="kick">{t('tags.kick')}</p>
+    <h1><span class="hash" aria-hidden="true">#</span>{tagLabel(lang, tag!)}</h1>
+    <p class="databar masthead-meta">
+      <span>
+        <b>{tagged.length}</b>{' '}
+        {tagged.length === 1 ? t('tags.onTopic_one') : t('tags.onTopic_other')}
+      </span>
+    </p>
+  </header>
+
+  <nav class="tag-filter" aria-label={t('articles.filterTag.aria')}>
+    <ul class="chips">
+      <li style="display:contents">
+        <a class="chip" href={withBase(localePath(lang, '/articles/'))}>{t('articles.all')}</a>
+      </li>
+      {
+        allTags.map((other) => (
+          <li style="display:contents">
+            <a
+              class="chip"
+              href={withBase(localePath(lang, `/tags/${other}/`))}
+              aria-current={other === tag ? 'true' : undefined}
+            >
+              {tagLabel(lang, other)}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  {hasDemo && <DemoBanner context="list" lang={lang} />}
+
+  <ul class="card-grid reveal">
+    {tagged.map((article) => <ArticleCard article={article} headingLevel="h2" lang={lang} />)}
+  </ul>
+</Base>
+
+<style>
+  h1 {
+    margin-top: 1rem;
+    font-size: clamp(2.3rem, 5.4vw, 3.4rem);
+    text-transform: capitalize;
+  }
+
+  .hash {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.72em;
+    margin-right: 0.08em;
+  }
+
+  .masthead-meta {
+    margin-top: 1rem;
+  }
+
+  .tag-filter {
+    margin-block: 1.75rem 2.25rem;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>

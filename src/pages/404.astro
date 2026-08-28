@@ -1,31 +1,47 @@
 ---
+// The host serves this single file for every unmatched path, including ones
+// under a locale prefix, so it cannot itself be emitted per language. It
+// renders the default locale — the right fallback with no JS — and hands off
+// to the fully translated /<locale>/404/ when the missed URL was localized.
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import shield from '../assets/logo-shield.png';
 import { withBase } from '../utils/articles';
+import { DEFAULT_LOCALE, PREFIXED_LOCALES } from '../i18n/config';
+import { localePath, useTranslations } from '../i18n/utils';
+
+const t = useTranslations(DEFAULT_LOCALE);
 ---
 
-<Base
-  title="Page not found · Cyber Shield"
-  description="That page doesn't exist. Head back to the Cyber Shield home page or browse all articles."
->
-  <div class="lost">
+<Base langTarget="/" title={t('notFound.title')} description={t('notFound.description')}>
+  <div class="lost" data-prefixed-locales={PREFIXED_LOCALES.join(',')}>
     <p class="err-code" aria-hidden="true">404</p>
     <div class="lost-mark corner-frame">
       <Image src={shield} alt="" width="120" height="120" loading="eager" />
     </div>
-    <p class="kick kick--center">404 · signal lost</p>
-    <h1>This page doesn't exist.</h1>
-    <p class="meta">
-      The link may be old, or the address may have a typo. (If someone sent you here, that's worth
-      a healthy dose of suspicion. We teach a whole article on that.)
-    </p>
+    <p class="kick kick--center">{t('notFound.kick')}</p>
+    <h1>{t('notFound.h1')}</h1>
+    <p class="meta">{t('notFound.body')}</p>
     <div class="cta">
-      <a class="button" href={withBase('/')}>Back to the home page</a>
-      <a class="button button--ghost" href={withBase('/articles/')}>Browse articles</a>
+      <a class="button" href={withBase(localePath(DEFAULT_LOCALE, '/'))}>{t('notFound.home')}</a>
+      <a class="button button--ghost" href={withBase(localePath(DEFAULT_LOCALE, '/articles/'))}>
+        {t('notFound.browse')}
+      </a>
     </div>
   </div>
 </Base>
+
+<script>
+  // If the URL that 404'd was localized, send the reader to that language's
+  // own 404 page, which is fully translated including header and footer.
+  const root = document.querySelector<HTMLElement>('[data-prefixed-locales]');
+  const locales = (root?.dataset.prefixedLocales ?? '').split(',').filter(Boolean);
+  const first = location.pathname.split('/').filter(Boolean)[0] ?? '';
+  if (locales.includes(first)) {
+    // replace() so Back returns to wherever they came from, not this page.
+    location.replace(`/${first}/404/`);
+  }
+</script>
 
 <style>
   .lost {

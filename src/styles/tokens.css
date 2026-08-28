@@ -39,9 +39,20 @@
   --warn: #ac4d0d;
 
   /* type */
-  --font-display: 'Libre Franklin Variable', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* The three webfonts carry no CJK glyphs, so every Japanese character falls
+     through to the next entry. Without explicit Japanese families the browser
+     picks its own default, which differs per OS — and a serif stack can land
+     on a sans. These fallbacks keep Japanese matched to the same voice as the
+     Latin face: gothic for display/UI, mincho for body prose. */
+  --font-jp-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic Medium', 'Yu Gothic',
+    'Noto Sans JP', Meiryo;
+  --font-jp-serif: 'Hiragino Mincho ProN', 'Yu Mincho', YuMincho, 'Noto Serif JP', 'MS PMincho';
+
+  --font-display: 'Libre Franklin Variable', 'Helvetica Neue', 'Segoe UI', var(--font-jp-sans),
+    system-ui, sans-serif;
+  --font-body: 'Source Serif 4 Variable', Georgia, 'Times New Roman', var(--font-jp-serif), serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas,
+    var(--font-jp-sans), monospace;
 
   /* semantic tokens, light theme (default) */
   color-scheme: light;

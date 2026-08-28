@@ -1,32 +1,22 @@
 ---
+import { LOCALE_CODES } from '../../../i18n/config';
+import { langParam, useTranslations } from '../../../i18n/utils';
 import { render } from 'astro:content';
 import { Image, getImage } from 'astro:assets';
-import Base from '../../layouts/Base.astro';
-import DemoBanner from '../../components/DemoBanner.astro';
+import Base from '../../../layouts/Base.astro';
+import DemoBanner from '../../../components/DemoBanner.astro';
 import {
-  formatDate,
+  articleSlug,
   getPublishedArticles,
-  issueLabel,
   readingTime,
   withBase,
   type Article,
-} from '../../utils/articles';
+} from '../../../utils/articles';
+import { formatDateIn, issueLabelIn, localePath, tagLabel } from '../../../i18n/utils';
 
-export async function getStaticPaths() {
-  const articles = await getPublishedArticles();
-  return articles.map((article, index) => ({
-    params: { slug: article.id },
-    props: {
-      article,
-      // articles are sorted newest first
-      newer: articles[index - 1] ?? null,
-      older: articles[index + 1] ?? null,
-      sameIssue: articles.filter(
-        (other) => other.data.issue === article.data.issue && other.id !== article.id
-      ),
-    },
-  }));
-}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
 
 interface Props {
   article: Article;
@@ -43,32 +33,57 @@ const minutes = readingTime(article.body);
 const ogImage = coverImage
   ? new URL((await getImage({ src: coverImage, width: 1200 })).src, Astro.site).href
   : undefined;
+
+export async function getStaticPaths() {
+  // Articles differ per locale, so each language is queried separately rather
+  // than fanning one English list across every prefix.
+  const out = [];
+  for (const code of LOCALE_CODES) {
+    const articles = await getPublishedArticles(code);
+    articles.forEach((article, index) => {
+      out.push({
+        params: { lang: langParam(code), slug: articleSlug(article) },
+        props: {
+          lang: code,
+          article,
+          // articles are sorted newest first
+          newer: articles[index - 1] ?? null,
+          older: articles[index + 1] ?? null,
+          sameIssue: articles.filter(
+            (other) => other.data.issue === article.data.issue && other.id !== article.id
+          ),
+        },
+      });
+    });
+  }
+  return out;
+}
 ---
 
-<Base title={`${title} · Cyber Shield`} description={description} ogType="article" ogImage={ogImage}>
+<Base lang={lang} title={`${title} · Cyber Shield`} description={description} ogType="article" ogImage={ogImage}>
   <div class="reading-progress" hidden aria-hidden="true"><span></span></div>
 
-  {article.data.demo && <DemoBanner context="article" />}
+  {article.data.demo && <DemoBanner context="article" lang={lang} />}
 
   <article data-pagefind-body>
     <header class="article-head">
       <p class="databar" data-pagefind-ignore>
-        <a class="issue-link" href={withBase(`/issues/${issue}/`)}
-          >{issueLabel(issue)} issue</a
+        <a class="issue-link" href={withBase(localePath(lang, `/issues/${issue}/`))}
+          >{t('article.issueLink', { issue: issueLabelIn(lang, issue) })}</a
         >
-        <span><time datetime={pubDate.toISOString().slice(0, 10)}>{formatDate(pubDate)}</time></span>
-        <span>{minutes} min read</span>
+        <span><time datetime={pubDate.toISOString().slice(0, 10)}>{formatDateIn(lang, pubDate)}</time></span>
+        <span>{t('card.minRead', { count: minutes })}</span>
         <span><b>{authors.join(', ')}</b></span>
       </p>
       <h1>{title}</h1>
       <p class="lede">{description}</p>
       {
         tags.length > 0 && (
-          <ul class="chips" aria-label="Tags" data-pagefind-ignore>
+          <ul class="chips" aria-label={t('article.tags')} data-pagefind-ignore>
             {tags.map((tag) => (
               <li style="display:contents">
-                <a class="chip" href={withBase(`/tags/${tag}/`)} data-pagefind-filter="topic">
-                  {tag}
+                <a class="chip" href={withBase(localePath(lang, `/tags/${tag}/`))} data-pagefind-filter="topic">
+                  {tagLabel(lang, tag)}
                 </a>
               </li>
             ))}
@@ -89,19 +104,19 @@ const ogImage = coverImage
       <Content />
     </div>
 
-    <p class="endmark databar" aria-hidden="true"><span>◼ ◼ ◼</span><span>End of transmission</span></p>
+    <p class="endmark databar" aria-hidden="true"><span>◼ ◼ ◼</span><span>{t('article.endTransmission')}</span></p>
   </article>
 
   {
     sameIssue.length > 0 && (
       <aside class="section related" aria-labelledby="related-heading">
         <h2 class="kick kick--lead" id="related-heading">
-          More from the {issueLabel(issue)} issue
+          {t('article.moreFrom', { issue: issueLabelIn(lang, issue) })}
         </h2>
         <ul>
           {sameIssue.map((other) => (
             <li>
-              <a href={withBase(`/articles/${other.id}/`)}>{other.data.title}</a>
+              <a href={withBase(localePath(lang, `/articles/${articleSlug(other)}/`))}>{other.data.title}</a>
               <span class="meta">: {other.data.description}</span>
             </li>
           ))}
@@ -110,11 +125,11 @@ const ogImage = coverImage
     )
   }
 
-  <nav class="section pager" aria-label="Article navigation">
+  <nav class="section pager" aria-label={t('article.navAria')}>
     {
       older ? (
-        <a class="pager-link" href={withBase(`/articles/${older.id}/`)} rel="prev">
-          <span class="pager-dir">← Older</span>
+        <a class="pager-link" href={withBase(localePath(lang, `/articles/${articleSlug(older)}/`))} rel="prev">
+          <span class="pager-dir">← {t('article.older')}</span>
           <span class="pager-title">{older.data.title}</span>
         </a>
       ) : (
@@ -123,8 +138,8 @@ const ogImage = coverImage
     }
     {
       newer ? (
-        <a class="pager-link pager-next" href={withBase(`/articles/${newer.id}/`)} rel="next">
-          <span class="pager-dir">Newer →</span>
+        <a class="pager-link pager-next" href={withBase(localePath(lang, `/articles/${articleSlug(newer)}/`))} rel="next">
+          <span class="pager-dir">{t('article.newer')} →</span>
           <span class="pager-title">{newer.data.title}</span>
         </a>
       ) : (

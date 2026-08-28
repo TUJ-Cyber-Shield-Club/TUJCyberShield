@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { DEFAULT_LOCALE, LOCALES } from './src/i18n/config.ts';
 
 // Deployed on Cloudflare Pages at the custom domain, served from the root.
 // `site` drives absolute URLs (canonical tags, sitemap, social-share images),
@@ -9,5 +10,23 @@ import sitemap from '@astrojs/sitemap';
 // Custom domains. No `base` is needed because the site is served from the root.
 export default defineConfig({
   site: 'https://tujcybershield.com',
-  integrations: [sitemap()],
+  // Locale routing: the default language is served unprefixed at the root, the
+  // rest under /<code>/. The pages themselves live in src/pages/[...lang]/ and
+  // emit one route per locale; this block is what makes Astro's own i18n
+  // helpers and the sitemap agree with that layout.
+  i18n: {
+    defaultLocale: DEFAULT_LOCALE,
+    locales: LOCALES.map((l) => l.code),
+    routing: { prefixDefaultLocale: false },
+  },
+  integrations: [
+    sitemap({
+      // Emits <xhtml:link rel="alternate" hreflang="..."> per URL, so search
+      // engines see the translations as one page rather than duplicates.
+      i18n: {
+        defaultLocale: DEFAULT_LOCALE,
+        locales: Object.fromEntries(LOCALES.map((l) => [l.code, l.bcp47])),
+      },
+    }),
+  ],
 });

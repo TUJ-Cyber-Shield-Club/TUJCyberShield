@@ -2,18 +2,31 @@
 import { Image } from 'astro:assets';
 import shield from '../assets/logo-shield.png';
 import ThemeToggle from './ThemeToggle.astro';
+import LanguagePicker from './LanguagePicker.astro';
 import { withBase } from '../utils/articles';
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { localePath, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang?: LocaleCode;
+  /** Forwarded to the language picker; see its `target` prop. */
+  langTarget?: string;
+}
+
+const { lang = DEFAULT_LOCALE, langTarget } = Astro.props;
+const t = useTranslations(lang);
 
 const joinForm =
   'https://docs.google.com/forms/d/e/1FAIpQLSf8e37fWWAWD6axVy3mzr_sbEWz8ce-pZ0NZT-cZfEaTNVqkA/viewform?usp=header';
 
-const home = withBase('/');
+// Nav targets are built per locale, so /ja/ pages link to /ja/ pages.
+const home = withBase(localePath(lang, '/'));
 const links = [
-  { href: home, label: 'Home' },
-  { href: withBase('/articles/'), label: 'Articles' },
-  { href: withBase('/issues/'), label: 'Issues' },
-  { href: withBase('/team/'), label: 'Team' },
-  { href: withBase('/about/'), label: 'About' },
+  { href: home, label: t('nav.home') },
+  { href: withBase(localePath(lang, '/articles/')), label: t('nav.articles') },
+  { href: withBase(localePath(lang, '/issues/')), label: t('nav.issues') },
+  { href: withBase(localePath(lang, '/team/')), label: t('nav.team') },
+  { href: withBase(localePath(lang, '/about/')), label: t('nav.about') },
 ];
 
 // Normalize trailing slashes so "/base" and "/base/" compare equal.
@@ -29,18 +42,18 @@ const isCurrent = (href: string) => {
   <div class="signalbar" aria-hidden="true">
     <div class="wrap signalbar-row">
       <p class="signalbar-left">
-        <span class="pulse-dot"></span>TUJ Cyber Shield Club — student-run, open to all
+        <span class="pulse-dot"></span>{t('header.signal.left')}
       </p>
-      <p class="signalbar-right">Digital safety briefing · published monthly</p>
+      <p class="signalbar-right">{t('header.signal.right')}</p>
     </div>
   </div>
 
   <div class="wrap bar">
-    <a class="brand" href={withBase('/')}>
+    <a class="brand" href={home}>
       <span class="brand-chip corner-frame">
         <Image
           src={shield}
-          alt="TUJ Cyber Shield club logo: an owl holding a padlock on a teal shield"
+          alt={t('brand.logoAlt')}
           width="72"
           height="72"
           loading="eager"
@@ -48,11 +61,11 @@ const isCurrent = (href: string) => {
       </span>
       <span class="brand-text">
         <span class="brand-name">Cyber Shield</span>
-        <span class="brand-sub">TUJ student publication</span>
+        <span class="brand-sub">{t('brand.sub')}</span>
       </span>
     </a>
 
-    <nav aria-label="Site">
+    <nav aria-label={t('nav.aria.site')}>
       <ul>
         {
           links.map(({ href, label }, i) => (
@@ -66,9 +79,10 @@ const isCurrent = (href: string) => {
             </li>
           ))
         }
-        <li class="nav-toggle"><ThemeToggle /></li>
+        <li class="nav-lang"><LanguagePicker lang={lang} target={langTarget} /></li>
+        <li class="nav-toggle"><ThemeToggle lang={lang} /></li>
         <li class="nav-join">
-          <a class="join-link" href={joinForm} target="_blank" rel="noopener">Join the club</a>
+          <a class="join-link" href={joinForm} target="_blank" rel="noopener">{t('header.join')}</a>
         </li>
       </ul>
     </nav>
@@ -262,7 +276,8 @@ const isCurrent = (href: string) => {
     right: 0.55rem;
   }
 
-  .nav-toggle {
+  .nav-toggle,
+  .nav-lang {
     margin-left: 0.35rem;
   }
 

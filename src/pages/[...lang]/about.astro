@@ -1,91 +1,90 @@
 ---
+import { localeStaticPaths, useTranslations } from '../../i18n/utils';
 import { Image } from 'astro:assets';
-import Base from '../layouts/Base.astro';
-import logo from '../assets/logo.png';
-import developer from '../assets/team/carl-masters.png';
-import { withBase } from '../utils/articles';
+import Base from '../../layouts/Base.astro';
+import logo from '../../assets/logo.png';
+import developer from '../../assets/team/carl-masters.png';
+import { withBase } from '../../utils/articles';
+import { localePath } from '../../i18n/utils';
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
 
 const joinForm =
   'https://docs.google.com/forms/d/e/1FAIpQLSf8e37fWWAWD6axVy3mzr_sbEWz8ce-pZ0NZT-cZfEaTNVqkA/viewform?usp=header';
+
+export const getStaticPaths = localeStaticPaths;
 ---
 
 <Base
-  title="About the club · Cyber Shield"
-  description="Cyber Shield is TUJ's digital-safety club: students translating real security research into plain-language advice anyone can use."
+  lang={lang}
+  title={t('about.title')}
+  description={t('about.description')}
 >
   <div class="about">
     <header class="masthead reveal">
-      <p class="kick kick--center">About the club</p>
-      <h1>Security research, <em>translated for everyone.</em></h1>
+      <p class="kick kick--center">{t('about.kick')}</p>
+      <h1>{t('about.h1.a')} <em>{t('about.h1.b')}</em></h1>
     </header>
 
     <div class="logo-plate reveal">
-      <p class="databar" aria-hidden="true"><span>Club crest</span><span>TUJ Cyber Shield</span></p>
+      <p class="databar" aria-hidden="true">
+        <span>{t('about.crestLabel')}</span><span>{t('about.crestName')}</span>
+      </p>
       <div class="crest corner-frame">
         <Image
           src={logo}
-          alt="The full TUJ Cyber Shield Club crest: an owl holding a padlock on a teal shield above the club wordmark"
+          alt={t('about.crestAlt')}
           width="360"
           loading="eager"
         />
       </div>
-      <p class="databar" aria-hidden="true"><span>Digital safety</span><span>No jargon</span></p>
+      <p class="databar" aria-hidden="true">
+        <span>{t('about.safety')}</span><span>{t('about.noJargon')}</span>
+      </p>
     </div>
 
     <div class="prose">
-      <p>
-        Cyber Shield aims to cultivate a community of students passionate about digital safety and
-        cybersecurity awareness. We provide an inclusive space for researching modern threats,
-        analyzing real-world vulnerabilities, and translating complex security topics into
-        accessible, actionable advice. Through collaborative research, guest speakers, and our
-        monthly publications, members help everyday students harden their digital lives without
-        needing a technical background.
-      </p>
-      <p>
-        Our activities welcome all skill levels and backgrounds, though we are always excited to
-        connect with students who have a passion for deep technical research or a talent for
-        writing and communication, fostering a culture of curiosity, critical thinking, and
-        community-driven protection.
-      </p>
+      <p>{t('about.p1')}</p>
+      <p>{t('about.p2')}</p>
 
-      <h2>What members actually do</h2>
+      <h2>{t('about.doH')}</h2>
       <ul>
-        <li><strong>Research:</strong> track current scams, breaches, and threats affecting students.</li>
-        <li><strong>Write:</strong> turn that research into short, jargon-free monthly articles.</li>
-        <li><strong>Edit:</strong> every article is peer-reviewed for accuracy and readability.</li>
-        <li><strong>Learn:</strong> guest speakers and workshops, open to every skill level.</li>
+        <li><strong>{t('about.do1L')}</strong> {t('about.do1')}</li>
+        <li><strong>{t('about.do2L')}</strong> {t('about.do2')}</li>
+        <li><strong>{t('about.do3L')}</strong> {t('about.do3')}</li>
+        <li><strong>{t('about.do4L')}</strong> {t('about.do4')}</li>
       </ul>
 
-      <h2>How to join</h2>
+      <h2>{t('about.joinH')}</h2>
       <p>
-        We'd love to have you. No application, no experience needed. Curiosity is the only
-        requirement. Follow us on Instagram at{' '}
+        {t('about.joinP1a')}
         <a href="https://www.instagram.com/tuj_cyber_shield_club/" target="_blank" rel="noopener"
           >@tuj_cyber_shield_club</a
-        >{' '}
-        for updates, and when you're ready to sign up, use the form below.
+        >{t('about.joinP1b')}
       </p>
       <p class="join-cta">
         <a class="button" href={joinForm} target="_blank" rel="noopener">
-          Join here <span class="button-arrow" aria-hidden="true">→</span>
+          {t('join.cta')} <span class="button-arrow" aria-hidden="true">→</span>
         </a>
       </p>
 
       <p>
-        Prefer to start by reading? <a href={withBase('/articles/')}>Browse our articles</a> or{' '}
-        <a href={withBase('/team/')}>meet the team</a>.
+        {t('about.readFirstA')}
+        <a href={withBase(localePath(lang, '/articles/'))}>{t('about.readFirstBrowse')}</a>{t('about.readFirstOr')}
+        <a href={withBase(localePath(lang, '/team/'))}>{t('about.readFirstTeam')}</a>.
       </p>
     </div>
 
     <section class="developer reveal" aria-labelledby="developer-heading">
-      <p class="kick">Behind the site</p>
-      <h2 id="developer-heading">The developer</h2>
+      <p class="kick">{t('about.devKick')}</p>
+      <h2 id="developer-heading">{t('about.devH2')}</h2>
       <div class="developer-card">
         <div class="avatar-frame">
           <Image
             class="dev-avatar"
             src={developer}
-            alt="Photo of Carl Masters"
+            alt={t('about.devPhotoAlt')}
             width="220"
             height="220"
             fit="cover"
@@ -96,17 +95,14 @@ const joinForm =
           <!-- EDIT ME, Carl: personalize this bio and swap in a real photo at
                src/assets/team/carl-masters.png -->
           <p>
-            This site was designed and built by <strong
+            {t('about.devP1a')}
+            <strong
               ><a href="https://carlmasters.com" target="_blank" rel="noopener">Carl Masters</a
               ></strong
-            >, a cybersecurity student at TUJ and founder of the Cyber Shield Club. The site was
-            built to be fast,
-            accessible, and simple enough that any club member can publish an article without
-            writing a line of code.
+            >{t('about.devP1b')}
           </p>
           <p>
-            If you have any questions about the website or would like to report any issues, please
-            reach out at{' '}
+            {t('about.devP2a')}
             <a href="mailto:carl.masters.dev@protonmail.com">carl.masters.dev@protonmail.com</a>.
           </p>
         </div>

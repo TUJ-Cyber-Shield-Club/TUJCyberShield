@@ -1,23 +1,28 @@
 ---
+import { localeStaticPaths, useTranslations } from '../../i18n/utils';
 import { Image } from 'astro:assets';
-import Base from '../layouts/Base.astro';
-import SocialIcons from '../components/SocialIcons.astro';
-import { team } from '../data/team';
+import Base from '../../layouts/Base.astro';
+import SocialIcons from '../../components/SocialIcons.astro';
+import { localized, team } from '../../data/team';
 import {
+  articleSlug,
   articlesByAuthor,
   getPublishedArticles,
-  issueLabel,
   readingTime,
   slugifyName,
   withBase,
-} from '../utils/articles';
+} from '../../utils/articles';
+import { issueLabelIn, localePath } from '../../i18n/utils';
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
 
 const joinForm =
   'https://docs.google.com/forms/d/e/1FAIpQLSf8e37fWWAWD6axVy3mzr_sbEWz8ce-pZ0NZT-cZfEaTNVqkA/viewform?usp=header';
 
 // Pair each member with the articles they're credited on. Members with no
 // credits get an empty list, and their popup simply omits the articles link.
-const published = await getPublishedArticles();
+const published = await getPublishedArticles(lang);
 
 // Slugs drive the popup element ids. A name with no ASCII letters or digits
 // (a Japanese name, say) slugifies to an empty string, and two names can
@@ -35,19 +40,19 @@ const members = team.map((member, i) => {
     articles: articlesByAuthor(published, [member.name, ...(member.authorNames ?? [])]),
   };
 });
+
+export const getStaticPaths = localeStaticPaths;
 ---
 
 <Base
-  title="Meet the team · Cyber Shield"
-  description="The students behind Cyber Shield: the writers, editors, and organizers who research and publish TUJ's monthly digital-safety newsletter."
+  lang={lang}
+  title={t('team.title')}
+  description={t('team.description')}
 >
   <header class="masthead reveal">
-    <p class="kick kick--center">The people behind the publication</p>
-    <h1>Meet the team</h1>
-    <p class="lede">
-      Cyber Shield is written and edited entirely by students. Here's who researches the threats,
-      writes the guides, and keeps each issue on schedule.
-    </p>
+    <p class="kick kick--center">{t('team.kick')}</p>
+    <h1>{t('team.h1')}</h1>
+    <p class="lede">{t('team.lede')}</p>
   </header>
 
   <ul class="team-grid">
@@ -62,7 +67,7 @@ const members = team.map((member, i) => {
             data-open={member.id}
             aria-haspopup="dialog"
           >
-            <span class="visually-hidden">Read more about {member.name}</span>
+            <span class="visually-hidden">{t('team.readMore', { name: member.name })}</span>
           </button>
           {/* Sits above .member-open so the photo opens the photo popup
               rather than the member popup. */}
@@ -71,12 +76,12 @@ const members = team.map((member, i) => {
             class="avatar-frame avatar-button"
             data-open={member.photoId}
             aria-haspopup="dialog"
-            aria-label={`View a larger photo of ${member.name}`}
+            aria-label={t('team.viewPhoto', { name: member.name })}
           >
             <Image
               class="avatar"
               src={member.avatar}
-              alt={`Photo of ${member.name}`}
+              alt={t('team.photoOf', { name: member.name })}
               width="240"
               height="240"
               fit="cover"
@@ -85,10 +90,10 @@ const members = team.map((member, i) => {
           </button>
           <div class="member-body">
             <h2>{member.name}</h2>
-            <p class="role">{member.role}</p>
-            <p class="bio">{member.bio}</p>
+            <p class="role">{localized(member.role, lang)}</p>
+            <p class="bio">{localized(member.bio, lang)}</p>
             <div class="member-links">
-              <SocialIcons links={member.links} name={member.name} />
+              <SocialIcons links={member.links} name={member.name} lang={lang} />
             </div>
           </div>
         </li>
@@ -104,7 +109,7 @@ const members = team.map((member, i) => {
         {/* Outside .modal-inner: that's the scrolling box, so a close button
             inside it scrolls out of reach on a long bio (and phones have no
             Esc key). Anchored to the dialog, it stays put. */}
-        <button type="button" class="modal-close" data-close aria-label="Close">
+        <button type="button" class="modal-close" data-close aria-label={t('team.close')}>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
@@ -118,12 +123,12 @@ const members = team.map((member, i) => {
               class="avatar-frame avatar-frame--lg avatar-button modal-photo"
               data-open={member.photoId}
               aria-haspopup="dialog"
-              aria-label={`View a larger photo of ${member.name}`}
+              aria-label={t('team.viewPhoto', { name: member.name })}
             >
               <Image
                 class="avatar avatar--lg"
                 src={member.avatar}
-                alt={`Photo of ${member.name}`}
+                alt={t('team.photoOf', { name: member.name })}
                 width="480"
                 height="480"
                 fit="cover"
@@ -133,28 +138,30 @@ const members = team.map((member, i) => {
 
             <div class="modal-id">
               <h2 id={`${member.id}-name`}>{member.name}</h2>
-              <p class="role">{member.role}</p>
+              <p class="role">{localized(member.role, lang)}</p>
             </div>
 
             <div class="modal-social">
-              <SocialIcons links={member.links} name={member.name} />
+              <SocialIcons links={member.links} name={member.name} lang={lang} />
             </div>
 
             <div class="modal-body">
-              <p class="bio bio--modal">{member.bio}</p>
+              <p class="bio bio--modal">{localized(member.bio, lang)}</p>
 
               {member.articles.length > 0 && (
                 <details class="contrib">
                   <summary>
-                    See my articles <span class="contrib-count">{member.articles.length}</span>
+                    {t('team.seeArticles')} <span class="contrib-count">{member.articles.length}</span>
                   </summary>
                   <ul class="contrib-list">
                     {member.articles.map((article) => (
                       <li>
-                        <a href={withBase(`/articles/${article.id}/`)}>{article.data.title}</a>
+                        <a href={withBase(localePath(lang, `/articles/${articleSlug(article)}/`))}>
+                          {article.data.title}
+                        </a>
                         <span class="databar contrib-meta">
-                          <span>{issueLabel(article.data.issue)}</span>
-                          <span>{readingTime(article.body)} min read</span>
+                          <span>{issueLabelIn(lang, article.data.issue)}</span>
+                          <span>{t('card.minRead', { count: readingTime(article.body) })}</span>
                         </span>
                       </li>
                     ))}
@@ -172,8 +179,8 @@ const members = team.map((member, i) => {
       that's the smallest source photo — anything larger would upscale. */}
   {
     members.map((member) => (
-      <dialog id={member.photoId} class="photo-modal" aria-label={`Photo of ${member.name}`}>
-        <button type="button" class="modal-close photo-close" data-close aria-label="Close">
+      <dialog id={member.photoId} class="photo-modal" aria-label={t('team.photoOf', { name: member.name })}>
+        <button type="button" class="modal-close photo-close" data-close aria-label={t('team.close')}>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
@@ -181,7 +188,7 @@ const members = team.map((member, i) => {
         <Image
           class="photo-full"
           src={member.avatar}
-          alt={`Photo of ${member.name}`}
+          alt={t('team.photoOf', { name: member.name })}
           width="720"
           height="720"
           fit="cover"
@@ -189,24 +196,23 @@ const members = team.map((member, i) => {
         />
         <p class="photo-caption databar">
           <span>{member.name}</span>
-          <span>{member.role}</span>
+          <span>{localized(member.role, lang)}</span>
         </p>
       </dialog>
     ))
   }
 
   <aside class="join corner-frame reveal">
-    <p class="kick kick--center">Want to join?</p>
-    <h2>There's room for you on this team.</h2>
-    <p class="join-copy">
-      No experience needed, just curiosity and a willingness to help people stay safe online.
-      Writers, researchers, editors, and organizers all welcome.
-    </p>
+    <p class="kick kick--center">{t('join.kick')}</p>
+    <h2>{t('join.h')}</h2>
+    <p class="join-copy">{t('join.body')}</p>
     <div class="cta">
       <a class="button" href={joinForm} target="_blank" rel="noopener">
-        Join here <span class="button-arrow" aria-hidden="true">→</span>
+        {t('join.cta')} <span class="button-arrow" aria-hidden="true">→</span>
       </a>
-      <a class="button button--ghost" href={withBase('/about/')}>About the club</a>
+      <a class="button button--ghost" href={withBase(localePath(lang, '/about/'))}>
+        {t('footer.aboutClub')}
+      </a>
     </div>
   </aside>
 </Base>

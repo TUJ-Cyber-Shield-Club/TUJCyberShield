@@ -1,9 +1,18 @@
 ---
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang?: LocaleCode;
+}
+
+const { lang = DEFAULT_LOCALE } = Astro.props;
+const t = useTranslations(lang);
 // Progressive enhancement: the button ships hidden and is revealed by the
 // script below, so visitors without JavaScript never see a dead control.
 ---
 
-<button id="theme-toggle" type="button" hidden aria-label="Switch between dark and light theme">
+<button id="theme-toggle" type="button" hidden aria-label={t('theme.switch')}>
   <svg
     class="icon-moon"
     aria-hidden="true"
