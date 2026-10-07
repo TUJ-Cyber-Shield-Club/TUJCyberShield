@@ -37,8 +37,7 @@ export async function getStaticPaths() {
   title={t('issues.issueTitle', { issue: label })}
   description={t('issues.issueDescription', { count: inIssue.length, label })}
 >
-  <header class="masthead reveal">
-    <p class="kick kick--center">{t('issues.issueLead', { issue: issue! })}</p>
+  <header class="masthead">
     <h1>{t('issues.issueH1', { label })}</h1>
     <p class="databar masthead-meta">
       <span>
@@ -51,7 +50,7 @@ export async function getStaticPaths() {
 
   {hasDemo && <DemoBanner context="issue" lang={lang} />}
 
-  <ul class="card-grid reveal">
+  <ul class="card-grid">
     {lead && <ArticleCard article={lead} headingLevel="h2" feature eager lang={lang} />}
     {rest.map((article) => <ArticleCard article={article} headingLevel="h2" lang={lang} />)}
   </ul>
@@ -70,7 +69,6 @@ export async function getStaticPaths() {
 
   .masthead h1 {
     font-size: clamp(2.3rem, 5.6vw, 3.5rem);
-    margin-top: 1.15rem;
   }
 
   .masthead-meta {

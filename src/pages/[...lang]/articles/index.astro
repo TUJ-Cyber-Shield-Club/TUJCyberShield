@@ -20,7 +20,6 @@ export const getStaticPaths = localeStaticPaths;
 
 <Base lang={lang} title={t('articles.title')} description={t('articles.description')}>
   <header class="masthead">
-    <p class="kick">{t('articles.kick')}</p>
     <h1>{t('articles.h1')}</h1>
     <p class="databar masthead-meta">
       <span>
@@ -33,44 +32,49 @@ export const getStaticPaths = localeStaticPaths;
 
   {hasDemo && <DemoBanner context="list" lang={lang} />}
 
-  <Search lang={lang} />
+  {/* One panel for every way to narrow the list: search on top, then topics
+      and month side by side. Labels are visually hidden — the placeholder,
+      the chips and the select's own "All dates" say what each control is. */}
+  <section class="filters" aria-label={t('articles.filters')}>
+    <Search lang={lang} />
 
-  <nav class="tag-filter" aria-label={t('articles.filterTag.aria')}>
-    <span class="kick">{t('articles.filterTopic')}</span>
-    <ul class="chips">
-      <li style="display:contents">
-        <a class="chip" href={withBase(localePath(lang, '/articles/'))} aria-current="true">
-          {t('articles.all')}
-        </a>
-      </li>
-      {
-        tags.map((tag) => (
+    <div class="filter-row">
+      <nav class="tag-filter" aria-label={t('articles.filterTag.aria')}>
+        <ul class="chips">
           <li style="display:contents">
-            <a class="chip" href={withBase(localePath(lang, `/tags/${tag}/`))}>
-              {tagLabel(lang, tag)}
+            <a class="chip" href={withBase(localePath(lang, '/articles/'))} aria-current="true">
+              {t('articles.all')}
             </a>
           </li>
-        ))
-      }
-    </ul>
-  </nav>
+          {
+            tags.map((tag) => (
+              <li style="display:contents">
+                <a class="chip" href={withBase(localePath(lang, `/tags/${tag}/`))}>
+                  {tagLabel(lang, tag)}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
 
-  <div
-    class="date-filter"
-    id="date-filter-wrap"
-    hidden
-    data-status-one={t('articles.status_one')}
-    data-status-other={t('articles.status_other')}
-  >
-    <label class="kick" for="date-filter">{t('articles.filterMonth')}</label>
-    <div class="date-controls">
-      <select id="date-filter">
-        <option value="">{t('articles.allDates')}</option>
-        {issues.map((issue) => <option value={issue}>{issueLabelIn(lang, issue)}</option>)}
-      </select>
-      <p class="meta" id="filter-status" role="status" aria-live="polite"></p>
+      <div
+        class="date-filter"
+        id="date-filter-wrap"
+        hidden
+        data-status-one={t('articles.status_one')}
+        data-status-other={t('articles.status_other')}
+      >
+        <label class="visually-hidden" for="date-filter">{t('articles.filterMonth')}</label>
+        <select id="date-filter">
+          <option value="">{t('articles.allDates')}</option>
+          {issues.map((issue) => <option value={issue}>{issueLabelIn(lang, issue)}</option>)}
+        </select>
+      </div>
     </div>
-  </div>
+
+    <p class="meta filter-status" id="filter-status" role="status" aria-live="polite"></p>
+  </section>
 
   <ul class="card-grid">
     {articles.map((article) => <ArticleCard article={article} headingLevel="h2" lang={lang} />)}
@@ -120,19 +124,28 @@ export const getStaticPaths = localeStaticPaths;
 <style>
   .masthead h1 {
     font-size: clamp(2.4rem, 5.6vw, 3.6rem);
-    margin-top: 1.1rem;
   }
 
   .masthead-meta {
     margin-top: 1rem;
   }
 
-  .tag-filter {
-    margin-block: 1.5rem 2rem;
+  .filters {
+    display: grid;
+    gap: 0.9rem;
+    margin-block: 1.75rem 2rem;
+    padding: 1rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
   }
 
-  .tag-filter .kick {
-    margin-bottom: 0.85rem;
+  .filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
   }
 
   .chips {
@@ -144,19 +157,9 @@ export const getStaticPaths = localeStaticPaths;
     padding: 0;
   }
 
-  .date-filter {
-    margin-block: 0 2.25rem;
-  }
-
-  .date-filter .kick {
-    margin-bottom: 0.85rem;
-  }
-
-  .date-controls {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
+  /* `display: block` on the wrapper would defeat its hidden attribute. */
+  .date-filter[hidden] {
+    display: none;
   }
 
   select {
@@ -166,10 +169,10 @@ export const getStaticPaths = localeStaticPaths;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text);
-    background: var(--bg-raised);
-    border: 1px solid var(--line-strong);
-    border-radius: 4px;
-    padding: 0.6rem 2.4rem 0.6rem 0.9rem;
+    background: var(--bg);
+    border: 1px solid var(--control-border);
+    border-radius: 6px;
+    padding: 0.5rem 2.4rem 0.5rem 0.9rem;
     cursor: pointer;
     /* custom chevron so the control matches both themes */
     appearance: none;
@@ -182,8 +185,15 @@ export const getStaticPaths = localeStaticPaths;
     border-color: var(--accent);
   }
 
-  #filter-status {
-    margin: 0;
+  /* iOS Safari zooms the page when a focused control is under 16px. */
+  @media (pointer: coarse) {
+    select {
+      font-size: 16px;
+    }
+  }
+
+  .filter-status:empty {
+    display: none;
   }
 
   .empty-state {

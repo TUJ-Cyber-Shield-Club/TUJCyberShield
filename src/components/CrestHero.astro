@@ -1,0 +1,117 @@
+---
+// The home page crest. Always renders the static shield image; on capable
+// devices a WebGL scene (src/scripts/crest-scene.ts) is loaded on demand and
+// fades in over it as a lit 3D shield turning slowly on its vertical axis. Every failure mode —
+// no JS, no WebGL2, reduced motion, data saver, a script error — leaves the
+// static image exactly as it was.
+import { Image } from 'astro:assets';
+import shield from '../assets/logo-shield.png';
+---
+
+<div class="crest-frame corner-frame" data-crest data-texture={shield.src}>
+  <Image class="crest-static" src={shield} alt="" width="400" height="400" loading="eager" />
+  <canvas class="crest-canvas" aria-hidden="true"></canvas>
+</div>
+
+<script>
+  const frame = document.querySelector<HTMLElement>('[data-crest]');
+  const canvas = frame?.querySelector<HTMLCanvasElement>('.crest-canvas');
+  const still = frame?.querySelector<HTMLElement>('.crest-static');
+
+  const capable = () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+    // Network Information API: Chromium only, so absence means "fine".
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (connection?.saveData) return false;
+    try {
+      return !!document.createElement('canvas').getContext('webgl2');
+    } catch {
+      return false;
+    }
+  };
+
+  if (frame && canvas && still && capable()) {
+    let dispose: (() => void) | undefined;
+    // Fetch three.js only once the hero is actually on screen, and after the
+    // browser has finished its more urgent work.
+    const start = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      start.disconnect();
+      const load = () =>
+        import('../scripts/crest-scene')
+          .then(({ mountCrest }) => {
+            dispose = mountCrest(frame, canvas, still, frame.dataset.texture ?? '');
+          })
+          .catch(() => {
+            /* the static crest simply stays */
+          });
+      if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 1500 });
+      else setTimeout(load, 200);
+    });
+    start.observe(frame);
+
+    // Free the GPU context when leaving the page (also covers bfcache).
+    window.addEventListener('pagehide', () => dispose?.());
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted && dispose) {
+        dispose();
+        import('../scripts/crest-scene').then(({ mountCrest }) => {
+          dispose = mountCrest(frame, canvas, still, frame.dataset.texture ?? '');
+        });
+      }
+    });
+  }
+</script>
+
+<style>
+  /* the crest, mounted like a framed exhibit */
+  .crest-frame {
+    position: relative;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background:
+      radial-gradient(closest-side, var(--accent-soft), transparent),
+      var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--edge-highlight), var(--shadow);
+  }
+
+  .crest-static {
+    width: clamp(9rem, 20vw, 14rem);
+    height: auto;
+    filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.18));
+    transition: opacity 500ms var(--ease-out);
+  }
+
+  /* Laid over the whole frame so the shield can tilt without clipping;
+     invisible until the scene has drawn its first frame. */
+  .crest-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    /* the same lift the static image has */
+    filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.18));
+    transition: opacity 500ms var(--ease-out);
+  }
+
+  .crest-frame:global(.is-live) .crest-canvas {
+    opacity: 1;
+  }
+
+  .crest-frame:global(.is-live) .crest-static {
+    opacity: 0;
+  }
+
+  @media (max-width: 56rem) {
+    .crest-frame {
+      padding: 1.25rem;
+    }
+
+    .crest-static {
+      width: 8rem;
+    }
+  }
+</style>

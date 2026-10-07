@@ -12,10 +12,10 @@ import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
 // Current avatars are placeholder initials. Swap in real photos when ready.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import carlMasters from '../assets/team/carl-masters.png';
-import ruoanLi from '../assets/team/ruoan-li.png';
-import uchidaTerence from '../assets/team/uchida-terence.png';
-import bhushithGujjalaHari from '../assets/team/bhushith-gujjala-hari.png';
+import carlMasters from '../assets/team/carl-masters.jpg';
+import ruoanLi from '../assets/team/ruoan-li.jpg';
+import uchidaTerence from '../assets/team/uchida-terence.jpg';
+import bhushithGujjalaHari from '../assets/team/bhushith-gujjala-hari.jpg';
 
 // A circular icon button under a member's bio. `type` picks the brand logo
 // (see the ICONS map in src/components/SocialIcons.astro for supported types:

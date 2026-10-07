@@ -1,0 +1,42 @@
+---
+// A generated cover for an article that has no `coverImage` of its own.
+// Decorative (the title is right beside it), so it is hidden from assistive
+// technology. The drawing itself lives in src/utils/covers.ts.
+import { coverSvg } from '../utils/covers';
+import { articleSlug, issueNumber, type Article } from '../utils/articles';
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  article: Article;
+  /** Language of the page the cover sits on, for the issue tag. */
+  lang?: LocaleCode;
+  class?: string;
+}
+
+const { article, lang = DEFAULT_LOCALE, class: className } = Astro.props;
+const t = useTranslations(lang);
+const number = await issueNumber(article.data.issue);
+// "Issue 1" set as a caps label in Latin scripts; caseless scripts unchanged.
+const issueTag = number ? t('cover.issue', { number }).toLocaleUpperCase(lang) : undefined;
+const svg = coverSvg({
+  slug: articleSlug(article),
+  issue: article.data.issue,
+  tags: article.data.tags,
+  issueTag,
+});
+---
+
+<div class:list={['gen-cover', className]} set:html={svg} />
+
+<style>
+  .gen-cover {
+    line-height: 0;
+  }
+
+  .gen-cover :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>

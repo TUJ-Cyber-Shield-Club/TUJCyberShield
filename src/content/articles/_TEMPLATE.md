@@ -25,10 +25,11 @@ tags: ["phishing", "email"]
 # Which monthly issue this belongs to, as "YYYY-MM". (required)
 issue: "2026-09"
 
-# OPTIONAL cover image. Put the image file in  src/assets/  first, then point
-# to it with a relative path, and describe it in coverAlt (required if you use
-# coverImage). Delete both lines if you don't have a cover image.
-# coverImage: ../../assets/my-cover.jpg
+# OPTIONAL cover image. Without one, the site draws a cover from your tags and
+# issue automatically. To use your own, put the file in  src/assets/  first,
+# point to it with a relative path (three ../ from articles/en/), and describe
+# it in coverAlt (required if you use coverImage).
+# coverImage: ../../../assets/my-cover.jpg
 # coverAlt: "A student scanning a QR code on a flyer"
 
 # Keep true while writing; the article stays off the live site.

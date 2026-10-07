@@ -18,7 +18,7 @@ const pagefindBase = withBase('/pagefind');
 ---
 
 <div class="search-block">
-  <label class="kick" for="search-box-input" id="search-label">{t('search.kick')}</label>
+  <label class="visually-hidden" for="search-box-input" id="search-label">{t('search.kick')}</label>
   <div
     id="search"
     data-base={pagefindBase}
@@ -67,12 +67,7 @@ const pagefindBase = withBase('/pagefind');
 
 <style is:global>
   .search-block {
-    max-width: 42rem;
-    margin-block: 1.75rem 2.25rem;
-  }
-
-  .search-block .kick {
-    margin-bottom: 0.85rem;
+    width: 100%;
   }
 
   #search {
@@ -87,9 +82,22 @@ const pagefindBase = withBase('/pagefind');
     --pagefind-ui-font: var(--font-display);
   }
 
+  /* Hold the input's height (Pagefind draws it at 64px × the UI scale)
+     before the script injects it, so the filters below don't jump down. */
+  html.js #search {
+    min-height: calc(64px * 0.92);
+  }
+
   #search .pagefind-ui__search-input {
     font-family: var(--font-mono);
     font-size: 0.85rem;
+  }
+
+  /* iOS Safari zooms the whole page when a focused input is under 16px. */
+  @media (pointer: coarse) {
+    #search .pagefind-ui__search-input {
+      font-size: 16px;
+    }
   }
 
   #search .pagefind-ui__result-link {

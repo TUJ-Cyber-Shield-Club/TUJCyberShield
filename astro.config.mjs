@@ -19,6 +19,14 @@ export default defineConfig({
     locales: LOCALES.map((l) => l.code),
     routing: { prefixDefaultLocale: false },
   },
+  vite: {
+    build: {
+      // three.js (the home page's 3D crest, src/scripts/crest-scene.ts) is a
+      // ~510 KB chunk, ~130 KB gzipped. It's lazy-loaded on the home page
+      // only, so the default 500 KB warning is expected noise.
+      chunkSizeWarningLimit: 600,
+    },
+  },
   integrations: [
     sitemap({
       // Emits <xhtml:link rel="alternate" hreflang="..."> per URL, so search

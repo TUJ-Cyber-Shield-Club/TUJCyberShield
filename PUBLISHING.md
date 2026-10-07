@@ -38,7 +38,7 @@ The "frontmatter" is everything between the two `---` lines at the top. It's the
 | `authors` | Everyone who wrote it. Names in quotes, inside square brackets. | `["Aiko Tanaka", "Marcus Bell"]` |
 | `tags` | Lowercase topic labels. Reuse existing ones when possible: `phishing`, `passwords`, `scams`, `privacy`, `social-media`, `email`, `phones`, `wifi`, `accounts`, `qr-codes`. | `["scams", "phones"]` |
 | `issue` | The monthly issue it belongs to, `"YYYY-MM"` in quotes. Articles with the same issue are grouped together on the site. | `"2026-09"` |
-| `coverImage` | *(optional)* A cover picture — see "Adding a cover image" below. | `../../assets/my-cover.jpg` |
+| `coverImage` | *(optional)* Your own cover picture. Leave it out and the site draws one for you — see "Cover images" below. | `../../../assets/my-cover.jpg` |
 | `coverAlt` | A one-line description of the cover image for blind and low-vision readers. **Required if you use `coverImage`.** | `"A hand scanning a QR code on a flyer"` |
 | `draft` | `true` = hidden from the live site. `false` = published. Start with `true` if you're still writing. | `false` |
 
@@ -57,15 +57,19 @@ That's it. Cloudflare Pages now builds and deploys the site automatically. After
 
 An admin can watch the progress in the Cloudflare dashboard (Workers & Pages → the project → Deployments): a build in progress, a green "Success" when it's live, or a red "Failed" if the build rejected something (usually a frontmatter mistake — the log names the file and field). If a build fails, edit your file on GitHub, fix the field, and commit again.
 
-## Adding a cover image
+## Cover images
+
+**You don't need one.** Every article without a `coverImage` gets a cover drawn automatically from its topic and issue: a glyph for its first recognizable tag (a QR code for `qr-codes`, a padlock for `passwords`, a hook for `phishing`, and so on) over a pattern unique to that article. The same art becomes the preview image when the article is shared on social media or in chat apps.
+
+To use your own picture instead:
 
 1. Prepare a JPG or PNG, ideally at least 1400 px wide and under ~1 MB.
 2. In the repository, go to **`src` → `assets`**.
 3. Click **Add file → Upload files**, drag your image in, and commit it (e.g. `fake-apps-cover.jpg`).
-4. In your article's frontmatter, add:
+4. In your article's frontmatter, add (three `../` because articles sit inside a language folder like `articles/en/`):
 
 ```yaml
-coverImage: ../../assets/fake-apps-cover.jpg
+coverImage: ../../../assets/fake-apps-cover.jpg
 coverAlt: "Describe what's in the picture in one sentence"
 ```
 

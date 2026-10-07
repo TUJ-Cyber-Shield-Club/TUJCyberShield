@@ -19,7 +19,8 @@
    On the light palette — it is deliberately not white. Paper sits at 83.5%
    luminance and raised surfaces cap at 90.2%, because the previous palette
    put cards at 97.2% (brighter than the page behind them) with body text at
-   16.5:1. Past roughly 13:1 on a bright field, extra contrast stops helping
+   16.5:1. Raised surfaces now sit at 92%, one step above the page so cards
+   read as objects, with a hairline edge and a resting shadow doing the rest. Past roughly 13:1 on a bright field, extra contrast stops helping
    and starts causing glare, so text now solves to 12:1 — still well past the
    AAA threshold of 7:1. The blue cast is 8deg from the dark theme's navy
    base, so both themes read as one brand.
@@ -57,7 +58,7 @@
   /* semantic tokens, light theme (default) */
   color-scheme: light;
   --bg: var(--paper);
-  --bg-raised: #f0f4fb;
+  --bg-raised: #f3f6fb;
   --bg-inset: #d9e2f0;
   --text: #26313f;
   --text-muted: #59626f;
@@ -68,14 +69,22 @@
   --accent-line: rgb(8 95 94 / 0.32);
   --warn-text: #ac4d0d;
   --warn-soft: rgb(172 77 13 / 0.1);
-  --line: #cfdae9;
+  --line: #c4d1e3;
   --line-strong: #9fb2cb;
+  /* The only visible boundary of a bare control (theme toggle, language
+     picker, chips) must clear WCAG 1.4.11's 3:1. --line-strong is decorative
+     (1.8:1); this is 3.3:1 on the page and 3.5:1 on raised surfaces. */
+  --control-border: #71839b;
   --grid-line: rgb(13 26 38 / 0.05);
   --grid-line-strong: rgb(13 26 38 / 0.09);
   --header-bg: rgb(230 236 246 / 1);
   --glow-fx: rgb(76 200 196 / 0.14);
   --shadow: 0 1px 2px rgb(13 26 38 / 0.05), 0 8px 24px rgb(13 26 38 / 0.07);
   --shadow-lift: 0 2px 4px rgb(13 26 38 / 0.06), 0 18px 40px rgb(13 26 38 / 0.12);
+  /* resting state for raised surfaces: a top-edge highlight (the same
+     "machined" edge as .button) plus a barely-there contact shadow */
+  --edge-highlight: inset 0 1px 0 rgb(255 255 255 / 0.7);
+  --shadow-rest: 0 1px 2px rgb(13 26 38 / 0.06), 0 4px 14px -6px rgb(13 26 38 / 0.1);
 
   /* motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -85,7 +94,7 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
   --bg: #08111a;
-  --bg-raised: #0d1a26;
+  --bg-raised: #112233;
   --bg-inset: #13242f;
   --text: #e6eef1;
   --text-muted: #9fb4c2;
@@ -96,14 +105,17 @@
   --accent-line: rgb(76 200 196 / 0.4);
   --warn-text: #e88c3c;
   --warn-soft: rgb(232 140 60 / 0.14);
-  --line: #1d3040;
+  --line: #243b4e;
   --line-strong: #33546b;
+  --control-border: #4f7690; /* 3.9:1 page, 3.3:1 inset */
   --grid-line: rgb(76 200 196 / 0.05);
   --grid-line-strong: rgb(76 200 196 / 0.1);
   --header-bg: rgb(8 17 26 / 1);
   --glow-fx: rgb(76 200 196 / 0.16);
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
   --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.4), 0 18px 44px rgb(0 0 0 / 0.5);
+  --edge-highlight: inset 0 1px 0 rgb(255 255 255 / 0.05);
+  --shadow-rest: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 18px -8px rgb(0 0 0 / 0.5);
 }
 
 /* System preference applies unless the visitor chose light explicitly.
@@ -112,7 +124,7 @@
   :root:not([data-theme='light']) {
     color-scheme: dark;
     --bg: #08111a;
-    --bg-raised: #0d1a26;
+    --bg-raised: #112233;
     --bg-inset: #13242f;
     --text: #e6eef1;
     --text-muted: #9fb4c2;
@@ -123,13 +135,16 @@
     --accent-line: rgb(76 200 196 / 0.4);
     --warn-text: #e88c3c;
     --warn-soft: rgb(232 140 60 / 0.14);
-    --line: #1d3040;
+    --line: #243b4e;
     --line-strong: #33546b;
+    --control-border: #4f7690; /* 3.9:1 page, 3.3:1 inset */
     --grid-line: rgb(76 200 196 / 0.05);
     --grid-line-strong: rgb(76 200 196 / 0.1);
     --header-bg: rgb(8 17 26 / 1);
     --glow-fx: rgb(76 200 196 / 0.16);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
     --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.4), 0 18px 44px rgb(0 0 0 / 0.5);
+    --edge-highlight: inset 0 1px 0 rgb(255 255 255 / 0.05);
+    --shadow-rest: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 18px -8px rgb(0 0 0 / 0.5);
   }
 }

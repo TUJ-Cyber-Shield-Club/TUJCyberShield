@@ -1,12 +1,12 @@
 ---
 import { localeStaticPaths, useTranslations } from '../../i18n/utils';
-import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import DemoBanner from '../../components/DemoBanner.astro';
-import shield from '../../assets/logo-shield.png';
+import JoinPanel from '../../components/JoinPanel.astro';
+import CrestHero from '../../components/CrestHero.astro';
 import { collectIssues, collectTags, getPublishedArticles, withBase } from '../../utils/articles';
-import { issueLabelIn, localePath } from '../../i18n/utils';
+import { issueLabelIn, localePath, tagLabel } from '../../i18n/utils';
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
@@ -28,8 +28,8 @@ export const getStaticPaths = localeStaticPaths;
     <div class="hero-text">
       <p class="kick">{t('home.kick')}</p>
       <h1>
-        {t('home.h1.a')}<br />
-        <em>{t('home.h1.b')}</em>
+        <span class="h1-line">{t('home.h1.a')}</span>
+        <span class="h1-line"><span class="h1-mark">{t('home.h1.b')}</span></span>
       </h1>
       <p class="lede">{t('home.lede')}</p>
       <div class="cta">
@@ -47,24 +47,11 @@ export const getStaticPaths = localeStaticPaths;
     </div>
 
     <div class="hero-crest" aria-hidden="true">
-      <div class="crest-frame corner-frame">
-        <Image
-          src={shield}
-          alt=""
-          width="400"
-          height="400"
-          loading="eager"
-        />
-      </div>
-      <p class="databar crest-bar">
-        <span>{t('home.crest.monthly')}</span>
-        <span>{t('home.crest.plain')}</span>
-        <span>{t('home.crest.student')}</span>
-      </p>
+      <CrestHero />
     </div>
   </section>
 
-  <div class="ledger reveal" role="list">
+  <div class="ledger" role="list">
     <p role="listitem"><b>{articles.length}</b> {t('home.ledger.briefings')}</p>
     <p role="listitem">
       <b>{issues.length}</b>{' '}
@@ -78,7 +65,7 @@ export const getStaticPaths = localeStaticPaths;
 
   {
     latestIssue && (
-      <section class="section reveal" aria-labelledby="latest-heading">
+      <section class="section" aria-labelledby="latest-heading">
         <h2 class="kick kick--lead" id="latest-heading">
           {t('home.latestIssue', { issue: issueLabelIn(lang, latestIssue) })}
         </h2>
@@ -110,11 +97,23 @@ export const getStaticPaths = localeStaticPaths;
     )
   }
 
-  <section class="section reveal">
-    <p class="more databar closing">
-      <a href={withBase(localePath(lang, '/articles/'))}>{t('home.browseAll')}</a>
-      <a href={withBase(localePath(lang, '/issues/'))}>{t('home.issueArchive')}</a>
-    </p>
+  <section class="section closing reveal" aria-labelledby="closing-heading">
+    <div class="closing-browse">
+      <h2 id="closing-heading">{t('home.closing.h')}</h2>
+      <p class="closing-copy">{t('home.closing.body')}</p>
+      <ul class="chips" aria-label={t('article.tags')}>
+        {tags.map((tag) => (
+          <li style="display:contents">
+            <a class="chip" href={withBase(localePath(lang, `/tags/${tag}/`))}>{tagLabel(lang, tag)}</a>
+          </li>
+        ))}
+      </ul>
+      <p class="closing-links">
+        <a href={withBase(localePath(lang, '/articles/'))}>{t('home.browseAll')}</a>
+        <a href={withBase(localePath(lang, '/issues/'))}>{t('home.issueArchive')}</a>
+      </p>
+    </div>
+    <JoinPanel lang={lang} align="start" headingLevel="h2" />
   </section>
 </Base>
 
@@ -135,14 +134,29 @@ export const getStaticPaths = localeStaticPaths;
     margin-top: 1.25rem;
   }
 
-  /* the tonal counterpoint: serif italic in phosphor teal */
-  .hero h1 em {
-    font-family: var(--font-body);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.012em;
-    color: var(--accent);
-    font-size: 0.99em;
+  .h1-line {
+    display: block;
+  }
+
+  /* Japanese: break between phrases (文節), never mid-word, so the line
+     can't strand a lone "で。" on a row of its own. */
+  .hero h1:lang(ja) {
+    word-break: auto-phrase;
+    /* A whole phrase like 「デジタル安全を、」 is wider than a 320px phone at
+       the Latin minimum size, and auto-phrase won't split it: size by the
+       viewport instead, and allow an emergency break as a last resort. */
+    font-size: clamp(2rem, 8.6vw, 4.4rem);
+    overflow-wrap: anywhere;
+  }
+
+  /* A teal rule under the second line: the accent, without a faux italic
+     (which Japanese can't take). One rule per wrapped line via
+     box-decoration-break: clone. */
+  .h1-mark {
+    padding-bottom: 0.1em;
+    background: linear-gradient(var(--accent), var(--accent)) left bottom / 100% 0.06em no-repeat;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
 
   .lede {
@@ -161,43 +175,13 @@ export const getStaticPaths = localeStaticPaths;
     margin-top: 2rem;
   }
 
-  /* the crest, mounted like a framed exhibit with a hover-level float */
+  /* the crest column; the frame and its 3D scene live in CrestHero.astro */
   .hero-crest {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1.1rem;
     justify-self: center;
-  }
-
-  .crest-frame {
-    padding: clamp(1.5rem, 3vw, 2.5rem);
-    background:
-      radial-gradient(closest-side, var(--accent-soft), transparent),
-      var(--bg-raised);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    animation: hover-float 7s ease-in-out infinite;
-  }
-
-  .crest-frame img {
-    width: clamp(9rem, 20vw, 14rem);
-    filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.18));
-  }
-
-  @keyframes hover-float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-8px);
-    }
-  }
-
-  .crest-bar {
-    justify-content: center;
   }
 
   /* the ledger: a ruled strip of live counts under the masthead */
@@ -232,12 +216,61 @@ export const getStaticPaths = localeStaticPaths;
     margin-bottom: 1.75rem;
   }
 
+  /* the close of the page: topics to browse beside the invitation to join */
   .closing {
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 3.5rem);
+    align-items: center;
+    padding-top: clamp(2.5rem, 6vw, 3.5rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .closing-browse h2 {
+    font-size: clamp(1.45rem, 3.6vw, 2rem);
+  }
+
+  .closing-copy {
+    margin-top: 0.85rem;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 1.08rem;
+    max-width: 32rem;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    list-style: none;
+    margin: 1.4rem 0 0;
+    padding: 0;
+  }
+
+  .closing-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .closing-links a {
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .closing-links a::after {
+    content: ' →';
+    font-family: var(--font-mono);
+  }
+
+  .closing-links a:hover {
+    text-decoration: underline;
   }
 
   @media (max-width: 56rem) {
-    .hero {
+    .hero,
+    .closing {
       grid-template-columns: 1fr;
     }
 
@@ -247,16 +280,5 @@ export const getStaticPaths = localeStaticPaths;
       justify-self: start;
     }
 
-    .crest-frame {
-      padding: 1.25rem;
-    }
-
-    .crest-frame img {
-      width: 8rem;
-    }
-
-    .crest-bar {
-      display: none;
-    }
   }
 </style>

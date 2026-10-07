@@ -3,7 +3,7 @@ import { localeStaticPaths, useTranslations } from '../../i18n/utils';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import logo from '../../assets/logo.png';
-import developer from '../../assets/team/carl-masters.png';
+import developer from '../../assets/team/carl-masters.jpg';
 import { withBase } from '../../utils/articles';
 import { localePath } from '../../i18n/utils';
 
@@ -22,15 +22,11 @@ export const getStaticPaths = localeStaticPaths;
   description={t('about.description')}
 >
   <div class="about">
-    <header class="masthead reveal">
-      <p class="kick kick--center">{t('about.kick')}</p>
+    <header class="masthead">
       <h1>{t('about.h1.a')} <em>{t('about.h1.b')}</em></h1>
     </header>
 
-    <div class="logo-plate reveal">
-      <p class="databar" aria-hidden="true">
-        <span>{t('about.crestLabel')}</span><span>{t('about.crestName')}</span>
-      </p>
+    <div class="logo-plate">
       <div class="crest corner-frame">
         <Image
           src={logo}
@@ -39,9 +35,6 @@ export const getStaticPaths = localeStaticPaths;
           loading="eager"
         />
       </div>
-      <p class="databar" aria-hidden="true">
-        <span>{t('about.safety')}</span><span>{t('about.noJargon')}</span>
-      </p>
     </div>
 
     <div class="prose">
@@ -77,7 +70,6 @@ export const getStaticPaths = localeStaticPaths;
     </div>
 
     <section class="developer reveal" aria-labelledby="developer-heading">
-      <p class="kick">{t('about.devKick')}</p>
       <h2 id="developer-heading">{t('about.devH2')}</h2>
       <div class="developer-card">
         <div class="avatar-frame">
@@ -93,7 +85,7 @@ export const getStaticPaths = localeStaticPaths;
         </div>
         <div class="prose dev-bio">
           <!-- EDIT ME, Carl: personalize this bio and swap in a real photo at
-               src/assets/team/carl-masters.png -->
+               src/assets/team/carl-masters.jpg -->
           <p>
             {t('about.devP1a')}
             <strong
@@ -123,7 +115,6 @@ export const getStaticPaths = localeStaticPaths;
 
   .masthead h1 {
     font-size: clamp(2rem, 5.4vw, 3.1rem);
-    margin-top: 1.15rem;
   }
 
   .masthead h1 em {
@@ -131,6 +122,11 @@ export const getStaticPaths = localeStaticPaths;
     font-style: italic;
     font-weight: 400;
     color: var(--accent);
+  }
+
+  /* Japanese has no italic; the browser would slant the mincho artificially. */
+  .masthead h1 em:lang(ja) {
+    font-style: normal;
   }
 
   /* The full crest mounted in a dark specimen frame, captioned like an exhibit. */
@@ -172,7 +168,6 @@ export const getStaticPaths = localeStaticPaths;
 
   .developer h2 {
     font-size: 1.7rem;
-    margin-top: 0.7rem;
   }
 
   .developer-card {
@@ -204,7 +199,10 @@ export const getStaticPaths = localeStaticPaths;
 
   .dev-bio {
     margin: 0;
+    min-width: 0;
     font-size: 1.04rem;
+    /* the email address is one long unbreakable word on a 320px phone */
+    overflow-wrap: anywhere;
   }
 
   @media (max-width: 34rem) {

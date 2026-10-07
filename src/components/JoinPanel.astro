@@ -1,0 +1,80 @@
+---
+// The recruiting panel: a short pitch and the sign-up action. Shared by the
+// team page (centered, on its own) and the close of the home page (beside the
+// archive links), so the pitch is written once.
+import { withBase } from '../utils/articles';
+import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { localePath, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang?: LocaleCode;
+  /** Heading level, so the panel fits the outline of whichever page hosts it. */
+  headingLevel?: 'h2' | 'h3';
+  /** Left-aligned, for use inside a column rather than as a standalone block. */
+  align?: 'center' | 'start';
+}
+
+const { lang = DEFAULT_LOCALE, headingLevel: Heading = 'h2', align = 'center' } = Astro.props;
+const t = useTranslations(lang);
+
+const joinForm =
+  'https://docs.google.com/forms/d/e/1FAIpQLSf8e37fWWAWD6axVy3mzr_sbEWz8ce-pZ0NZT-cZfEaTNVqkA/viewform?usp=header';
+---
+
+<aside class:list={['join', 'corner-frame', `join--${align}`]} aria-labelledby="join-heading">
+  <Heading id="join-heading">{t('join.h')}</Heading>
+  <p class="join-copy">{t('join.body')}</p>
+  <div class="join-cta">
+    <a class="button" href={joinForm} target="_blank" rel="noopener">
+      {t('join.cta')} <span class="button-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="button button--ghost" href={withBase(localePath(lang, '/about/'))}>
+      {t('footer.aboutClub')}
+    </a>
+  </div>
+</aside>
+
+<style>
+  .join {
+    padding: clamp(1.75rem, 5vw, 2.75rem) clamp(1.5rem, 4vw, 2.5rem);
+    background:
+      linear-gradient(135deg, var(--accent-soft), transparent 55%),
+      var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--edge-highlight), var(--shadow-rest);
+  }
+
+  .join--center {
+    text-align: center;
+  }
+
+  .join h2,
+  .join h3 {
+    font-size: clamp(1.45rem, 3.6vw, 2rem);
+  }
+
+  .join-copy {
+    margin-top: 0.85rem;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 1.08rem;
+    max-width: 34rem;
+    text-wrap: pretty;
+  }
+
+  .join--center .join-copy {
+    margin-inline: auto;
+  }
+
+  .join-cta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.6rem;
+  }
+
+  .join--center .join-cta {
+    justify-content: center;
+  }
+</style>

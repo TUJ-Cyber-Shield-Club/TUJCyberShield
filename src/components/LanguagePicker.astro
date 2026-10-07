@@ -69,7 +69,7 @@ const here = target ?? stripLocale(Astro.url.pathname);
     gap: 0.4rem;
     height: 2.3rem;
     padding-inline: 0.6rem;
-    border: 1px solid var(--line-strong);
+    border: 1px solid var(--control-border);
     border-radius: 6px;
     color: var(--text);
     font-size: 0.82rem;
@@ -170,6 +170,9 @@ const here = target ?? stripLocale(Astro.url.pathname);
   for (const picker of document.querySelectorAll<HTMLDetailsElement>('[data-lang-picker]')) {
     picker.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && picker.open) {
+        // Marks the key as handled so an enclosing menu (the header's mobile
+        // sheet) doesn't close too on the same press.
+        event.preventDefault();
         picker.open = false;
         picker.querySelector('summary')?.focus();
       }

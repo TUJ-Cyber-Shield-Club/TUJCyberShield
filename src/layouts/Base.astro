@@ -3,6 +3,12 @@ import '@fontsource-variable/libre-franklin';
 import '@fontsource-variable/source-serif-4';
 import '@fontsource-variable/jetbrains-mono';
 import '../styles/global.css';
+// The Latin cuts of the two faces that set above-the-fold text on every page
+// (headings/nav, and serif ledes). Preloaded so the first paint already uses
+// them: otherwise a headline set in the fallback wraps differently and the
+// page jumps when the webfont swaps in. Same files the @font-face rules use.
+import franklinLatin from '@fontsource-variable/libre-franklin/files/libre-franklin-latin-wght-normal.woff2?url';
+import serifLatin from '@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { withBase } from '../utils/articles';
@@ -59,6 +65,9 @@ const alternates = LOCALES.map((l) => ({
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <meta name="generator" content={Astro.generator} />
+
+    <link rel="preload" href={franklinLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={serifLatin} as="font" type="font/woff2" crossorigin />
 
     <link rel="icon" href={withBase('/favicon.ico')} sizes="32x32" />
     <link rel="icon" href={withBase('/icon-192.png')} type="image/png" sizes="192x192" />

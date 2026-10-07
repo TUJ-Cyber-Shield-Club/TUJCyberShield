@@ -3,6 +3,7 @@ import { localeStaticPaths, useTranslations } from '../../i18n/utils';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import SocialIcons from '../../components/SocialIcons.astro';
+import JoinPanel from '../../components/JoinPanel.astro';
 import { localized, team } from '../../data/team';
 import {
   articleSlug,
@@ -16,9 +17,6 @@ import { issueLabelIn, localePath } from '../../i18n/utils';
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-
-const joinForm =
-  'https://docs.google.com/forms/d/e/1FAIpQLSf8e37fWWAWD6axVy3mzr_sbEWz8ce-pZ0NZT-cZfEaTNVqkA/viewform?usp=header';
 
 // Pair each member with the articles they're credited on. Members with no
 // credits get an empty list, and their popup simply omits the articles link.
@@ -49,16 +47,15 @@ export const getStaticPaths = localeStaticPaths;
   title={t('team.title')}
   description={t('team.description')}
 >
-  <header class="masthead reveal">
-    <p class="kick kick--center">{t('team.kick')}</p>
+  <header class="masthead">
     <h1>{t('team.h1')}</h1>
     <p class="lede">{t('team.lede')}</p>
   </header>
 
   <ul class="team-grid">
     {
-      members.map((member, i) => (
-        <li class="member reveal" style={`--reveal-delay: ${i * 90}ms`}>
+      members.map((member) => (
+        <li class="member">
           {/* Covers the whole card so any click opens the popup. Social links
               sit above it (see .member-links) and stay individually clickable. */}
           <button
@@ -82,8 +79,8 @@ export const getStaticPaths = localeStaticPaths;
               class="avatar"
               src={member.avatar}
               alt={t('team.photoOf', { name: member.name })}
-              width="240"
-              height="240"
+              width="480"
+              height="480"
               fit="cover"
               loading="lazy"
             />
@@ -91,9 +88,12 @@ export const getStaticPaths = localeStaticPaths;
           <div class="member-body">
             <h2>{member.name}</h2>
             <p class="role">{localized(member.role, lang)}</p>
-            <p class="bio">{localized(member.bio, lang)}</p>
-            <div class="member-links">
-              <SocialIcons links={member.links} name={member.name} lang={lang} />
+            <p class="bio bio--card">{localized(member.bio, lang)}</p>
+            <span class="member-more" aria-hidden="true">{t('team.more')} →</span>
+            <div class="member-foot">
+              <div class="member-links">
+                <SocialIcons links={member.links} name={member.name} lang={lang} />
+              </div>
             </div>
           </div>
         </li>
@@ -202,19 +202,9 @@ export const getStaticPaths = localeStaticPaths;
     ))
   }
 
-  <aside class="join corner-frame reveal">
-    <p class="kick kick--center">{t('join.kick')}</p>
-    <h2>{t('join.h')}</h2>
-    <p class="join-copy">{t('join.body')}</p>
-    <div class="cta">
-      <a class="button" href={joinForm} target="_blank" rel="noopener">
-        {t('join.cta')} <span class="button-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="button button--ghost" href={withBase(localePath(lang, '/about/'))}>
-        {t('footer.aboutClub')}
-      </a>
-    </div>
-  </aside>
+  <div class="join-wrap">
+    <JoinPanel lang={lang} />
+  </div>
 </Base>
 
 <style>
@@ -226,7 +216,6 @@ export const getStaticPaths = localeStaticPaths;
 
   .masthead h1 {
     font-size: clamp(2.3rem, 5.6vw, 3.5rem);
-    margin-top: 1.15rem;
   }
 
   .lede {
@@ -237,32 +226,67 @@ export const getStaticPaths = localeStaticPaths;
     color: var(--text-muted);
   }
 
+  /* Four across on wide screens, two on tablets, one on phones: chosen
+     explicitly rather than auto-fill so a four-person team never strands a
+     lone card on a second row. */
   .team-grid {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     gap: 1.4rem;
-    grid-template-columns: repeat(auto-fill, minmax(min(22rem, 100%), 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  @media (min-width: 66rem) {
+    .team-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 36rem) {
+    .team-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Portrait-led card: photo, name and role, a short bio, links. */
   .member {
     position: relative;
     display: flex;
-    gap: 1.2rem;
-    padding: 1.5rem;
+    flex-direction: column;
+    padding: 0.85rem 0.85rem 1.25rem;
     background: var(--bg-raised);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 8px;
+    box-shadow: var(--edge-highlight), var(--shadow-rest);
     transition: border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out),
       transform var(--dur) var(--ease-out);
   }
 
-  .member:hover,
   .member:has(.member-open:focus-visible) {
     border-color: var(--accent-line);
-    box-shadow: var(--shadow-lift);
-    transform: translateY(-3px);
+    box-shadow: var(--edge-highlight), var(--shadow-lift);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .member:hover {
+      border-color: var(--accent-line);
+      box-shadow: var(--edge-highlight), var(--shadow-lift);
+      transform: translateY(-3px);
+    }
+
+    .member:hover .avatar-frame {
+      border-color: var(--accent);
+    }
+
+    .member:hover .member-more {
+      color: var(--accent-strong);
+    }
+
+    .member:hover .avatar {
+      transform: scale(1.03);
+    }
   }
 
   /* Full-card hit area. Only present once JS can open the popup. */
@@ -317,23 +341,32 @@ export const getStaticPaths = localeStaticPaths;
 
   .avatar-frame {
     flex: 0 0 auto;
-    padding: 0.35rem;
+    padding: 0.3rem;
     border: 1px solid var(--line-strong);
     border-radius: 8px;
     background: var(--bg-inset);
-    align-self: flex-start;
     transition: border-color var(--dur) var(--ease-out);
   }
 
-  .member:hover .avatar-frame {
-    border-color: var(--accent);
+  .member > .avatar-frame {
+    overflow: hidden;
   }
 
   .avatar {
-    width: 4.4rem;
-    height: 4.4rem;
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
     border-radius: 5px;
     object-fit: cover;
+    transition: transform 600ms var(--ease-out);
+  }
+
+  .member-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem 0.4rem 0;
   }
 
   .member-body h2 {
@@ -358,44 +391,82 @@ export const getStaticPaths = localeStaticPaths;
     line-height: 1.62;
   }
 
-  .join {
-    text-align: center;
+  /* Cards show a taste of the bio; the popup holds all of it. Clamped only
+     once JS can open that popup — without it, the card is the full bio. */
+  :global(html.js) .bio--card {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+  }
+
+  .member-foot {
+    margin-top: auto;
+    padding-top: 1.1rem;
+  }
+
+  .member-more {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap;
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  :global(html.js) .member-more {
+    display: block;
+    margin-top: 0.6rem;
+  }
+
+  /* Phones: a full-width portrait per person makes a very long page, so
+     the photo shrinks beside the name and the bio runs full width below.
+     display: contents lifts the body's children into the card's grid. */
+  @media (max-width: 36rem) {
+    .member {
+      display: grid;
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      column-gap: 1rem;
+      padding: 1rem 1rem 1.15rem;
+    }
+
+    .member > .avatar-frame {
+      grid-row: 1 / span 2;
+      align-self: start;
+    }
+
+    .member-body {
+      display: contents;
+    }
+
+    .member-body h2 {
+      grid-column: 2;
+      align-self: end;
+    }
+
+    .member-body .role {
+      grid-column: 2;
+      align-self: start;
+    }
+
+    .bio--card,
+    .member-more,
+    .member-foot {
+      grid-column: 1 / -1;
+    }
+
+    .bio--card {
+      margin-top: 0.9rem;
+    }
+  }
+
+  .join-wrap {
     max-width: 42rem;
     margin: clamp(3.5rem, 9vw, 5rem) auto 0;
-    padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2.5rem);
-    background:
-      linear-gradient(135deg, var(--accent-soft), transparent 55%),
-      var(--bg-raised);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-  }
-
-  .join h2 {
-    font-size: clamp(1.5rem, 4vw, 2.1rem);
-    margin-top: 0.8rem;
-  }
-
-  .join-copy {
-    margin-top: 0.85rem;
-    color: var(--text-muted);
-    font-family: var(--font-body);
-    font-size: 1.08rem;
-    max-width: 34rem;
-    margin-inline: auto;
-  }
-
-  .cta {
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin-top: 1.75rem;
-  }
-
-  @media (max-width: 34rem) {
-    .member {
-      flex-direction: column;
-    }
   }
 
   /* --- member popup ------------------------------------------------------- */
@@ -410,7 +481,7 @@ export const getStaticPaths = localeStaticPaths;
     padding: 0;
     /* ~75% of the viewport on desktop, capped so prose never gets unreadably
        wide on an ultrawide monitor. Mobile overrides this further down. */
-    width: min(75vw, 64rem);
+    width: min(90vw, 52rem);
     max-height: 85vh;
     /* The dialog itself never scrolls — .modal-inner does — so the close
        button anchored here stays visible however long the bio runs. The
@@ -440,6 +511,38 @@ export const getStaticPaths = localeStaticPaths;
     from {
       opacity: 0;
       transform: translateY(10px) scale(0.985);
+    }
+  }
+
+  /* Exit: a quick fade back out (faster than the way in). The display and
+     overlay transitions keep the dialog painted until the fade finishes;
+     browsers without allow-discrete simply close instantly, as before. */
+  .member-modal,
+  .photo-modal,
+  .member-modal::backdrop,
+  .photo-modal::backdrop {
+    transition:
+      opacity 150ms var(--ease-out),
+      transform 150ms var(--ease-out),
+      overlay 150ms allow-discrete,
+      display 150ms allow-discrete;
+  }
+
+  .member-modal:not([open]),
+  .photo-modal:not([open]) {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+
+  .member-modal:not([open])::backdrop,
+  .photo-modal:not([open])::backdrop {
+    opacity: 0;
+  }
+
+  @starting-style {
+    .member-modal[open]::backdrop,
+    .photo-modal[open]::backdrop {
+      opacity: 0;
     }
   }
 

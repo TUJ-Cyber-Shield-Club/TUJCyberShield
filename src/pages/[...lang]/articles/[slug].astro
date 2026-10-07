@@ -5,6 +5,7 @@ import { render } from 'astro:content';
 import { Image, getImage } from 'astro:assets';
 import Base from '../../../layouts/Base.astro';
 import DemoBanner from '../../../components/DemoBanner.astro';
+import ArticleCover from '../../../components/ArticleCover.astro';
 import {
   articleSlug,
   getPublishedArticles,
@@ -30,9 +31,11 @@ const { title, description, pubDate, authors, tags, issue, coverImage, coverAlt 
 const { Content } = await render(article);
 const minutes = readingTime(article.body);
 
+// Share image: the author's cover if there is one, else the generated cover
+// rasterized at build time by src/pages/og/[slug].png.ts.
 const ogImage = coverImage
   ? new URL((await getImage({ src: coverImage, width: 1200 })).src, Astro.site).href
-  : undefined;
+  : new URL(withBase(`/og/${articleSlug(article)}.png`), Astro.site).href;
 
 export async function getStaticPaths() {
   // Articles differ per locale, so each language is queried separately rather
@@ -92,13 +95,15 @@ export async function getStaticPaths() {
       }
     </header>
 
-    {
-      coverImage && coverAlt && (
-        <div class="cover corner-frame">
+    <div class="cover corner-frame">
+      {
+        coverImage && coverAlt ? (
           <Image src={coverImage} alt={coverAlt} width="1400" loading="eager" />
-        </div>
-      )
-    }
+        ) : (
+          <ArticleCover article={article} lang={lang} class="cover-art" />
+        )
+      }
+    </div>
 
     <div class="prose body-text">
       <Content />
@@ -125,25 +130,22 @@ export async function getStaticPaths() {
     )
   }
 
-  <nav class="section pager" aria-label={t('article.navAria')}>
+  {/* A lone neighbour spans the full row instead of leaving an empty half. */}
+  <nav class:list={['section', 'pager', !(older && newer) && 'pager--single']} aria-label={t('article.navAria')}>
     {
-      older ? (
+      older && (
         <a class="pager-link" href={withBase(localePath(lang, `/articles/${articleSlug(older)}/`))} rel="prev">
           <span class="pager-dir">← {t('article.older')}</span>
           <span class="pager-title">{older.data.title}</span>
         </a>
-      ) : (
-        <span />
       )
     }
     {
-      newer ? (
+      newer && (
         <a class="pager-link pager-next" href={withBase(localePath(lang, `/articles/${articleSlug(newer)}/`))} rel="next">
           <span class="pager-dir">{t('article.newer')} →</span>
           <span class="pager-title">{newer.data.title}</span>
         </a>
-      ) : (
-        <span />
       )
     }
   </nav>
@@ -248,8 +250,14 @@ export async function getStaticPaths() {
     background: var(--bg-raised);
   }
 
-  .cover img {
+  .cover img,
+  .cover :global(.cover-art) {
     border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .cover :global(.cover-art svg) {
+    aspect-ratio: 1200 / 630;
   }
 
   .prose {
@@ -317,6 +325,10 @@ export async function getStaticPaths() {
     gap: 1rem;
   }
 
+  .pager--single {
+    grid-template-columns: 1fr;
+  }
+
   .pager-link {
     display: flex;
     flex-direction: column;
@@ -325,6 +337,7 @@ export async function getStaticPaths() {
     border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--bg-raised);
+    box-shadow: var(--edge-highlight), var(--shadow-rest);
     text-decoration: none;
     transition: border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out),
       transform var(--dur) var(--ease-out);
@@ -332,8 +345,13 @@ export async function getStaticPaths() {
 
   .pager-link:hover {
     border-color: var(--accent-line);
-    box-shadow: var(--shadow);
-    transform: translateY(-2px);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pager-link:hover {
+      box-shadow: var(--edge-highlight), var(--shadow);
+      transform: translateY(-2px);
+    }
   }
 
   .pager-dir {

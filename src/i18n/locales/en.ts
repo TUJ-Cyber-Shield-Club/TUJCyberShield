@@ -26,12 +26,14 @@ export const en = {
   'header.signal.left': 'TUJ Cyber Shield Club — student-run, open to all',
   'header.signal.right': 'Digital safety briefing · published monthly',
   'header.join': 'Join the club',
+  'header.joinShort': 'Join',
   'nav.aria.site': 'Site',
   'nav.home': 'Home',
   'nav.articles': 'Articles',
   'nav.issues': 'Issues',
   'nav.team': 'Team',
   'nav.about': 'About',
+  'nav.menu': 'Menu',
   'lang.label': 'Language',
   'lang.choose': 'Choose a language',
 
@@ -74,6 +76,8 @@ export const en = {
   'home.latestIssue': 'The {issue} issue',
   'home.everything': 'Everything in this issue',
   'home.archive': 'From the archive',
+  'home.closing.h': 'Browse the archive',
+  'home.closing.body': 'Every briefing is filed by topic. Pick the one that worries you most and start there.',
   'home.browseAll': 'Browse all articles',
   'home.issueArchive': 'Issue archive',
 
@@ -86,6 +90,7 @@ export const en = {
   'articles.count_one': 'briefing',
   'articles.count_other': 'briefings',
   'articles.newestFirst': 'Newest to oldest',
+  'articles.filters': 'Search and filter articles',
   'articles.filterTopic': 'Filter by topic',
   'articles.filterTag.aria': 'Filter by tag',
   'articles.filterMonth': 'Filter by month',
@@ -98,6 +103,7 @@ export const en = {
   'search.placeholder': 'Search articles, e.g. “phishing” or “passwords”',
 
   // ── article card / article page ─────────────────────────────────────────
+  'cover.issue': 'Issue {number}',
   'card.coverStory': 'Cover story',
   'card.vol': 'Vol. {issue}',
   'card.minRead': '{count} min read',
@@ -139,6 +145,7 @@ export const en = {
   'team.h1': 'Meet the team',
   'team.lede':
     "Cyber Shield is written and edited entirely by students. Here's who researches the threats, writes the guides, and keeps each issue on schedule.",
+  'team.more': 'Full bio',
   'team.readMore': 'Read more about {name}',
   'team.viewPhoto': 'View a larger photo of {name}',
   'team.close': 'Close',

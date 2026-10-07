@@ -41,7 +41,6 @@ export async function getStaticPaths() {
   description={t('tags.description', { tag: tag! })}
 >
   <header class="masthead">
-    <p class="kick">{t('tags.kick')}</p>
     <h1><span class="hash" aria-hidden="true">#</span>{tagLabel(lang, tag!)}</h1>
     <p class="databar masthead-meta">
       <span>
@@ -74,14 +73,13 @@ export async function getStaticPaths() {
 
   {hasDemo && <DemoBanner context="list" lang={lang} />}
 
-  <ul class="card-grid reveal">
+  <ul class="card-grid">
     {tagged.map((article) => <ArticleCard article={article} headingLevel="h2" lang={lang} />)}
   </ul>
 </Base>
 
 <style>
   h1 {
-    margin-top: 1rem;
     font-size: clamp(2.3rem, 5.4vw, 3.4rem);
     text-transform: capitalize;
   }

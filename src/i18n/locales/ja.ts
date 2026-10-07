@@ -7,12 +7,14 @@ export const ja: Dictionary = {
   'header.signal.left': 'TUJ Cyber Shield Club — 学生運営、どなたでも参加できます',
   'header.signal.right': 'デジタル安全ブリーフィング · 毎月発行',
   'header.join': '入部する',
+  'header.joinShort': '入部',
   'nav.aria.site': 'サイト',
   'nav.home': 'ホーム',
   'nav.articles': '記事',
   'nav.issues': '号',
   'nav.team': 'メンバー',
   'nav.about': 'クラブについて',
+  'nav.menu': 'メニュー',
   'lang.label': '言語',
   'lang.choose': '言語を選択',
 
@@ -51,6 +53,8 @@ export const ja: Dictionary = {
   'home.latestIssue': '{issue}号',
   'home.everything': 'この号のすべての記事',
   'home.archive': 'アーカイブから',
+  'home.closing.h': 'アーカイブを見る',
+  'home.closing.body': 'すべてのブリーフィングはトピック別に整理されています。いちばん気になるテーマから読み始めてください。',
   'home.browseAll': 'すべての記事を見る',
   'home.issueArchive': '号のアーカイブ',
 
@@ -62,6 +66,7 @@ export const ja: Dictionary = {
   'articles.count_one': '本のブリーフィング',
   'articles.count_other': '本のブリーフィング',
   'articles.newestFirst': '新しい順',
+  'articles.filters': '記事の検索と絞り込み',
   'articles.filterTopic': 'トピックで絞り込む',
   'articles.filterTag.aria': 'タグで絞り込む',
   'articles.filterMonth': '月で絞り込む',
@@ -73,6 +78,7 @@ export const ja: Dictionary = {
   'search.kick': 'アーカイブを検索',
   'search.placeholder': '記事を検索（例：「フィッシング」「パスワード」）',
 
+  'cover.issue': '第{number}号',
   'card.coverStory': '特集記事',
   'card.vol': 'Vol. {issue}',
   'card.minRead': '約{count}分',
@@ -112,6 +118,7 @@ export const ja: Dictionary = {
   'team.h1': 'メンバー紹介',
   'team.lede':
     'Cyber Shield は、すべて学生の手で執筆・編集されています。脅威を調査し、ガイドを書き、毎号を予定どおり届けているメンバーを紹介します。',
+  'team.more': 'プロフィール',
   'team.readMore': '{name} さんについて詳しく見る',
   'team.viewPhoto': '{name} さんの写真を大きく表示',
   'team.close': '閉じる',

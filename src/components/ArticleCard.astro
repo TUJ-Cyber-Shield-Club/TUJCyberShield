@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import ArticleCover from './ArticleCover.astro';
 import { articleSlug, readingTime, withBase, type Article } from '../utils/articles';
 import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
 import { formatDateIn, localePath, useTranslations } from '../i18n/utils';
@@ -27,12 +28,10 @@ const url = withBase(localePath(lang, `/articles/${articleSlug(article)}/`));
 const minutes = readingTime(article.body);
 ---
 
-<li
-  class:list={['card', feature && 'card--feature', feature && coverImage && 'card--split']}
-  data-issue={issue}
->
+<li class:list={['card', feature && 'card--feature card--split']} data-issue={issue}>
+  {/* An author's own cover wins; otherwise one is drawn from the article. */}
   {
-    coverImage && (
+    coverImage ? (
       <div class="card-cover">
         <Image
           src={coverImage}
@@ -42,6 +41,8 @@ const minutes = readingTime(article.body);
           loading={eager ? 'eager' : 'lazy'}
         />
       </div>
+    ) : (
+      <ArticleCover article={article} lang={lang} class="card-cover" />
     )
   }
   <div class="card-body">
@@ -74,25 +75,21 @@ const minutes = readingTime(article.body);
       var(--bg-raised);
   }
 
-  /* with a cover, split text left / image right; without one, run a wide
-     single column so no empty half ever shows */
-  .card--feature:not(.card--split) .card-body {
-    max-width: 46rem;
-  }
-
+  /* the lead story: text left, cover right (every article has a cover now,
+     generated when the author didn't supply one) */
   .card--split {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     gap: clamp(1.25rem, 3vw, 2.25rem);
   }
 
-  .card--split .card-cover {
+  .card--split > :global(.card-cover) {
     order: 2;
     margin: 0;
     align-self: center;
   }
 
-  .card--split .card-cover img {
+  .card--split > :global(.card-cover) :is(img, svg) {
     height: auto;
     aspect-ratio: 1200 / 630;
   }
@@ -160,7 +157,7 @@ const minutes = readingTime(article.body);
       grid-template-columns: 1fr;
     }
 
-    .card--split .card-cover {
+    .card--split > :global(.card-cover) {
       order: -1;
     }
   }

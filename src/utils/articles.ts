@@ -85,6 +85,16 @@ export function collectIssues(articles: Article[]): string[] {
   return [...new Set(articles.map((a) => a.data.issue))].sort().reverse();
 }
 
+/**
+ * An issue's running number, counting from 1 for the oldest published issue,
+ * the same numbering as the issue archive's spines. Returns 0 for an issue
+ * that isn't published (e.g. a draft-only month in production).
+ */
+export async function issueNumber(issue: string): Promise<number> {
+  const oldestFirst = collectIssues(await getPublishedArticles()).reverse();
+  return oldestFirst.indexOf(issue) + 1;
+}
+
 /** Unique tags among the given articles, alphabetical. */
 export function collectTags(articles: Article[]): string[] {
   return [...new Set(articles.flatMap((a) => a.data.tags))].sort();
