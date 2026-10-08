@@ -226,27 +226,35 @@ export const getStaticPaths = localeStaticPaths;
     color: var(--text-muted);
   }
 
-  /* Four across on wide screens, two on tablets, one on phones: chosen
-     explicitly rather than auto-fill so a four-person team never strands a
-     lone card on a second row. */
+  /* Three across on wide screens, two on tablets, one on phones. A wrapping
+     flex row rather than a grid, so an incomplete last row (five members:
+     three, then two) sits centred instead of leaving a gap on the right. */
   .team-grid {
+    --cols: 2;
+    --gap: 1.4rem;
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: 1.4rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--gap);
   }
 
-  @media (min-width: 66rem) {
+  .team-grid > .member {
+    flex: 0 0 calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols));
+    min-width: 0;
+  }
+
+  @media (min-width: 62rem) {
     .team-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      --cols: 3;
     }
   }
 
   @media (max-width: 36rem) {
     .team-grid {
-      grid-template-columns: 1fr;
+      --cols: 1;
     }
   }
 

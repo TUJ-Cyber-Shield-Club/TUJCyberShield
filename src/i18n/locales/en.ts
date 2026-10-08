@@ -160,7 +160,7 @@ export const en = {
   'join.kick': 'Want to join?',
   'join.h': "There's room for you on this team.",
   'join.body':
-    'No experience needed, just curiosity and a willingness to help people stay safe online. Writers, researchers, editors, and organizers all welcome.',
+    'No experience needed, just curiosity and a willingness to help people stay safe online. Every member both researches and writes, and everyone is welcome.',
   'join.cta': 'Join here',
 
   // ── about ───────────────────────────────────────────────────────────────

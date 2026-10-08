@@ -16,6 +16,7 @@ import carlMasters from '../assets/team/carl-masters.jpg';
 import ruoanLi from '../assets/team/ruoan-li.jpg';
 import uchidaTerence from '../assets/team/uchida-terence.jpg';
 import bhushithGujjalaHari from '../assets/team/bhushith-gujjala-hari.jpg';
+import jasonSpond from '../assets/team/jason-spond.jpg';
 
 // A circular icon button under a member's bio. `type` picks the brand logo
 // (see the ICONS map in src/components/SocialIcons.astro for supported types:
@@ -91,7 +92,7 @@ export const team: TeamMember[] = [
   },
   {
     name: 'Uchida Terence',
-    role: { en: 'Researcher', ja: 'リサーチャー' },
+    role: { en: 'Member', ja: 'メンバー' },
     bio: {
       en: "Hi, Terence here, a third year Computer Science major at TUJ. Currently, doing an intern at a HK startup and working part-time at Brandy Melville.",
       ja: "こんにちは、Terence です。TUJ でコンピューターサイエンスを専攻する3年生です。現在は香港のスタートアップでインターンをしながら、Brandy Melville でアルバイトもしています。",
@@ -104,7 +105,7 @@ export const team: TeamMember[] = [
   },
   {
     name: 'Bhushith Gujjala Hari',
-    role: { en: 'Writer', ja: 'ライター' },
+    role: { en: 'Member', ja: 'メンバー' },
     bio: {
       en: "Hello, I'm a passionate computer science student who is interested in Machine Learning and Game Development. I am also the leader of the CS Society and help organize hackathons and other events. I am currently in my fourth year Computer Science major with experience from multiple solo projects, 2 research projects in Machine Learning, and two internships. Outside of work and University, I love to make pixel art and code games as a hobby.",
       ja: "こんにちは。機械学習とゲーム開発に関心をもつ、コンピューターサイエンスの学生です。CS Society の代表も務めており、ハッカソンなどのイベント運営にも携わっています。現在は4年生で、複数の個人プロジェクト、機械学習の研究プロジェクト2件、インターンシップ2回の経験があります。大学や仕事を離れたときは、ドット絵を描いたり、趣味でゲームを作ったりしています。",
@@ -113,6 +114,19 @@ export const team: TeamMember[] = [
     links: [
       { type: 'linkedin', href: 'https://www.linkedin.com/in/bhushith-gujjala-hari-9a5876276' },
       { type: 'github', href: 'https://github.com/teddyboy999' },
+    ],
+  },
+  {
+    name: 'Jason Spond',
+    role: { en: 'Member', ja: 'メンバー' },
+    bio: {
+      en: "Hello, my name's Jason. I come from Denver, Colorado, and after graduating high school I wasn't sure what I wanted to do professionally, so I joined the United States Air Force. While there, I spent 5 years maintaining guidance, control, electrical, and communication/navigation systems. I was very fortunate to support and travel with cargo aircraft in support of missions throughout Asia and the continental United States. I'm currently in pursuit of translating and honing my skills in the world of cyber security and computer programming.",
+      ja: "こんにちは、Jason です。コロラド州デンバー出身です。高校卒業後、将来の進路が決まっていなかったこともあり、アメリカ空軍に入隊しました。在籍中の5年間は、誘導・制御・電気系統、そして通信・航法システムの整備を担当しました。輸送機に同行し、アジア各地とアメリカ本土での任務を支援できたことは、とても恵まれた経験でした。現在は、そこで培った技術をサイバーセキュリティとプログラミングの世界に活かし、さらに磨きをかけようとしています。",
+    },
+    avatar: jasonSpond,
+    links: [
+      { type: 'linkedin', href: 'https://www.linkedin.com/in/jason-spond-678677275' },
+      { type: 'github', href: 'https://github.com/JodeCason' },
     ],
   },
 ];
