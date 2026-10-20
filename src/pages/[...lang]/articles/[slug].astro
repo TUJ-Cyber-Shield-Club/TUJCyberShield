@@ -4,7 +4,6 @@ import { langParam, useTranslations } from '../../../i18n/utils';
 import { render } from 'astro:content';
 import { Image, getImage } from 'astro:assets';
 import Base from '../../../layouts/Base.astro';
-import DemoBanner from '../../../components/DemoBanner.astro';
 import ArticleCover from '../../../components/ArticleCover.astro';
 import {
   articleSlug,
@@ -65,8 +64,6 @@ export async function getStaticPaths() {
 
 <Base lang={lang} title={`${title} · Cyber Shield`} description={description} ogType="article" ogImage={ogImage}>
   <div class="reading-progress" hidden aria-hidden="true"><span></span></div>
-
-  {article.data.demo && <DemoBanner context="article" lang={lang} />}
 
   <article data-pagefind-body>
     <header class="article-head">

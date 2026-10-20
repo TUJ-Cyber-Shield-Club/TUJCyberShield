@@ -643,9 +643,9 @@ a.chip:hover {
 }
 
 /* --- machine-translation notice ----------------------------------------------- */
-/* Sits at the top of every non-English page (see Base.astro). Same shape as
-   the demo banner, in the accent instead of the warning colour: it's a
-   heads-up, not a caveat about the content. */
+/* Sits at the top of every non-English page (see Base.astro). In the accent
+   rather than the warning colour: it's a heads-up, not a caveat about the
+   content. */
 
 .mt-notice {
   display: flex;

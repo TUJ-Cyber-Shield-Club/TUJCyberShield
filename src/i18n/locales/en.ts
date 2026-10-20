@@ -220,8 +220,12 @@ export const en = {
   'notFound.home': 'Back to the home page',
   'notFound.browse': 'Browse articles',
 
-  // ── demo notice ─────────────────────────────────────────────────────────
-  'demo.aria': 'Demo content notice',
+  // ── empty archive (no issues published yet) ─────────────────────────────
+  'soon.kick': 'Coming soon',
+  'soon.h': 'Our first issue is on its way.',
+  'soon.body':
+    "We're busy researching, writing, and editing Issue One — plain-language digital safety made for students. Check back soon; you won't want to miss it.",
+  'soon.aria': 'First issue announcement',
   'search.noJs': 'Search needs JavaScript. No problem, every article is listed below.',
   'search.buildOnly': 'Search will be available on the published site (the index is generated at build time).',
   'tag.accounts': 'accounts',
@@ -234,12 +238,6 @@ export const en = {
   'tag.scams': 'scams',
   'tag.wifi': 'wifi',
   'tag.privacy': 'privacy',
-  'demo.badge': 'Demo',
-  'demo.list': 'The articles shown here are demo templates, not real Cyber Shield publications yet.',
-  'demo.article':
-    'This is a demo article: a sample template that shows the layout and voice of the site, not a real Cyber Shield publication.',
-  'demo.issue':
-    'This is a demo issue: the articles below are sample templates, not real Cyber Shield publications.',
 } satisfies Record<string, string>;
 
 /** Every key the site can ask for. Derived from `en`, so it can't drift. */

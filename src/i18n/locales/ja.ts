@@ -190,7 +190,11 @@ export const ja: Dictionary = {
   'notFound.home': 'ホームに戻る',
   'notFound.browse': '記事を見る',
 
-  'demo.aria': 'デモコンテンツの注意',
+  'soon.kick': '近日公開',
+  'soon.h': '創刊号はもうすぐお届けします。',
+  'soon.body':
+    '学生のための、わかりやすいデジタル安全情報。創刊号に向けて調査・執筆・編集を進めています。どうぞお楽しみに、見逃さないでください。',
+  'soon.aria': '創刊号のお知らせ',
   'search.noJs': '検索には JavaScript が必要です。ご安心ください、すべての記事は下に一覧表示されています。',
   'search.buildOnly': '検索は公開サイトでご利用いただけます（索引はビルド時に生成されます）。',
   'tag.accounts': 'アカウント',
@@ -203,10 +207,4 @@ export const ja: Dictionary = {
   'tag.scams': '詐欺',
   'tag.wifi': 'Wi-Fi',
   'tag.privacy': 'プライバシー',
-  'demo.badge': 'デモ',
-  'demo.list': 'ここに表示されている記事はデモ用のテンプレートで、実際の Cyber Shield の記事ではありません。',
-  'demo.article':
-    'これはデモ記事です。サイトのレイアウトと文体を示すためのサンプルであり、実際の Cyber Shield の記事ではありません。',
-  'demo.issue':
-    'これはデモ号です。以下の記事はサンプルであり、実際の Cyber Shield の記事ではありません。',
 };

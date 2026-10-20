@@ -2,7 +2,7 @@
 import { localeStaticPaths, useTranslations } from '../../i18n/utils';
 import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
-import DemoBanner from '../../components/DemoBanner.astro';
+import ComingSoon from '../../components/ComingSoon.astro';
 import JoinPanel from '../../components/JoinPanel.astro';
 import CrestHero from '../../components/CrestHero.astro';
 import { collectIssues, collectTags, getPublishedArticles, withBase } from '../../utils/articles';
@@ -16,7 +16,7 @@ const latestIssue = articles[0]?.data.issue;
 const latestIssueArticles = articles.filter((a) => a.data.issue === latestIssue);
 const [coverStory, ...restOfIssue] = latestIssueArticles;
 const earlier = articles.filter((a) => a.data.issue !== latestIssue).slice(0, 6);
-const hasDemo = articles.some((a) => a.data.demo);
+const hasArticles = articles.length > 0;
 const issues = collectIssues(articles);
 const tags = collectTags(articles);
 
@@ -52,67 +52,90 @@ export const getStaticPaths = localeStaticPaths;
   </section>
 
   <div class="ledger" role="list">
-    <p role="listitem"><b>{articles.length}</b> {t('home.ledger.briefings')}</p>
-    <p role="listitem">
-      <b>{issues.length}</b>{' '}
-      {issues.length === 1 ? t('home.ledger.issues_one') : t('home.ledger.issues_other')}
-    </p>
-    <p role="listitem"><b>{tags.length}</b> {t('home.ledger.topics')}</p>
+    {
+      hasArticles && (
+        <>
+          <p role="listitem">
+            <b>{articles.length}</b> {t('home.ledger.briefings')}
+          </p>
+          <p role="listitem">
+            <b>{issues.length}</b>{' '}
+            {issues.length === 1 ? t('home.ledger.issues_one') : t('home.ledger.issues_other')}
+          </p>
+          <p role="listitem">
+            <b>{tags.length}</b> {t('home.ledger.topics')}
+          </p>
+        </>
+      )
+    }
     <p role="listitem"><b>1</b> {t('home.ledger.cadence')}</p>
   </div>
 
-  {hasDemo && <DemoBanner context="list" lang={lang} />}
-
   {
-    latestIssue && (
-      <section class="section" aria-labelledby="latest-heading">
-        <h2 class="kick kick--lead" id="latest-heading">
-          {t('home.latestIssue', { issue: issueLabelIn(lang, latestIssue) })}
-        </h2>
-        <ul class="card-grid">
-          {coverStory && <ArticleCard article={coverStory} feature eager lang={lang} />}
-          {restOfIssue.map((article, i) => (
-            <ArticleCard article={article} headingLevel="h3" lang={lang} />
-          ))}
-        </ul>
-        <p class="more databar">
-          <a href={withBase(localePath(lang, `/issues/${latestIssue}/`))}>{t('home.everything')}</a>
-        </p>
+    hasArticles ? (
+      <>
+        {latestIssue && (
+          <section class="section" aria-labelledby="latest-heading">
+            <h2 class="kick kick--lead" id="latest-heading">
+              {t('home.latestIssue', { issue: issueLabelIn(lang, latestIssue) })}
+            </h2>
+            <ul class="card-grid">
+              {coverStory && <ArticleCard article={coverStory} feature eager lang={lang} />}
+              {restOfIssue.map((article) => (
+                <ArticleCard article={article} headingLevel="h3" lang={lang} />
+              ))}
+            </ul>
+            <p class="more databar">
+              <a href={withBase(localePath(lang, `/issues/${latestIssue}/`))}>{t('home.everything')}</a>
+            </p>
+          </section>
+        )}
+
+        {earlier.length > 0 && (
+          <section class="section reveal" aria-labelledby="recent-heading">
+            <h2 class="kick kick--lead" id="recent-heading">
+              {t('home.archive')}
+            </h2>
+            <ul class="card-grid">
+              {earlier.map((article) => (
+                <ArticleCard article={article} lang={lang} />
+              ))}
+            </ul>
+          </section>
+        )}
+      </>
+    ) : (
+      <section class="section" aria-label={t('soon.aria')}>
+        <ComingSoon lang={lang} />
       </section>
     )
   }
 
-  {
-    earlier.length > 0 && (
-      <section class="section reveal" aria-labelledby="recent-heading">
-        <h2 class="kick kick--lead" id="recent-heading">
-          {t('home.archive')}
-        </h2>
-        <ul class="card-grid">
-          {earlier.map((article) => (
-            <ArticleCard article={article} lang={lang} />
-          ))}
-        </ul>
-      </section>
-    )
-  }
-
-  <section class="section closing reveal" aria-labelledby="closing-heading">
-    <div class="closing-browse">
-      <h2 id="closing-heading">{t('home.closing.h')}</h2>
-      <p class="closing-copy">{t('home.closing.body')}</p>
-      <ul class="chips" aria-label={t('article.tags')}>
-        {tags.map((tag) => (
-          <li style="display:contents">
-            <a class="chip" href={withBase(localePath(lang, `/tags/${tag}/`))}>{tagLabel(lang, tag)}</a>
-          </li>
-        ))}
-      </ul>
-      <p class="closing-links">
-        <a href={withBase(localePath(lang, '/articles/'))}>{t('home.browseAll')}</a>
-        <a href={withBase(localePath(lang, '/issues/'))}>{t('home.issueArchive')}</a>
-      </p>
-    </div>
+  <section
+    class:list={['section', 'closing', 'reveal', tags.length === 0 && 'closing--solo']}
+    aria-labelledby={tags.length > 0 ? 'closing-heading' : undefined}
+  >
+    {
+      tags.length > 0 && (
+        <div class="closing-browse">
+          <h2 id="closing-heading">{t('home.closing.h')}</h2>
+          <p class="closing-copy">{t('home.closing.body')}</p>
+          <ul class="chips" aria-label={t('article.tags')}>
+            {tags.map((tag) => (
+              <li style="display:contents">
+                <a class="chip" href={withBase(localePath(lang, `/tags/${tag}/`))}>
+                  {tagLabel(lang, tag)}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p class="closing-links">
+            <a href={withBase(localePath(lang, '/articles/'))}>{t('home.browseAll')}</a>
+            <a href={withBase(localePath(lang, '/issues/'))}>{t('home.issueArchive')}</a>
+          </p>
+        </div>
+      )
+    }
     <JoinPanel lang={lang} align="start" headingLevel="h2" />
   </section>
 </Base>
@@ -224,6 +247,13 @@ export const getStaticPaths = localeStaticPaths;
     align-items: center;
     padding-top: clamp(2.5rem, 6vw, 3.5rem);
     border-top: 1px solid var(--line);
+  }
+
+  /* nothing to browse yet: the join panel takes the whole row */
+  .closing--solo {
+    grid-template-columns: minmax(0, 44rem);
+    justify-content: center;
+    justify-items: stretch;
   }
 
   .closing-browse h2 {

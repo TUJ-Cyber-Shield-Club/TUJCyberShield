@@ -1,7 +1,7 @@
 ---
 import { localeStaticPaths, useTranslations } from '../../../i18n/utils';
 import Base from '../../../layouts/Base.astro';
-import DemoBanner from '../../../components/DemoBanner.astro';
+import ComingSoon from '../../../components/ComingSoon.astro';
 import { articleSlug, collectIssues, getPublishedArticles, readingTime, withBase } from '../../../utils/articles';
 import {
   formatDateIn,
@@ -15,7 +15,7 @@ const t = useTranslations(lang);
 
 const articles = await getPublishedArticles(lang);
 const issues = collectIssues(articles);
-const hasDemo = articles.some((a) => a.data.demo);
+const hasIssues = issues.length > 0;
 
 // "2026-07" -> { month: "JUL", year: "2026" } for the shelf spines.
 const spine = (issue: string) => {
@@ -32,52 +32,54 @@ export const getStaticPaths = localeStaticPaths;
     <p class="intro meta">{t('issues.intro')}</p>
   </header>
 
-  {hasDemo && <DemoBanner context="issue" lang={lang} />}
-
-  <div class="issues">
-    {
-      issues.map((issue, n) => {
-        const inIssue = articles.filter((a) => a.data.issue === issue);
-        const s = spine(issue);
-        return (
-          <section class="issue reveal" aria-labelledby={`issue-${issue}`}>
-            <header class="issue-head">
-              <p class="spine" aria-hidden="true">
-                <span class="spine-count">{String(issues.length - n).padStart(2, '0')}</span>
-                <span class="spine-month">{s.month}</span>
-                <span class="spine-year">{s.year}</span>
-              </p>
-              <h2 id={`issue-${issue}`}>
-                <a href={withBase(localePath(lang, `/issues/${issue}/`))}>
-                  {issueLabelIn(lang, issue)}
-                </a>
-              </h2>
-              <p class="databar">
-                <span>
-                  {inIssue.length}{' '}
-                  {inIssue.length === 1 ? t('issues.articles_one') : t('issues.articles_other')}
-                </span>
-                <span>{t('card.vol', { issue })}</span>
-              </p>
-            </header>
-            <ul>
-              {inIssue.map((article) => (
-                <li>
-                  <a href={withBase(localePath(lang, `/articles/${articleSlug(article)}/`))}>
-                    {article.data.title}
+  {
+    hasIssues ? (
+      <div class="issues">
+        {issues.map((issue, n) => {
+          const inIssue = articles.filter((a) => a.data.issue === issue);
+          const s = spine(issue);
+          return (
+            <section class="issue reveal" aria-labelledby={`issue-${issue}`}>
+              <header class="issue-head">
+                <p class="spine" aria-hidden="true">
+                  <span class="spine-count">{String(issues.length - n).padStart(2, '0')}</span>
+                  <span class="spine-month">{s.month}</span>
+                  <span class="spine-year">{s.year}</span>
+                </p>
+                <h2 id={`issue-${issue}`}>
+                  <a href={withBase(localePath(lang, `/issues/${issue}/`))}>
+                    {issueLabelIn(lang, issue)}
                   </a>
-                  <p class="meta">
-                    {article.data.authors.join(', ')} · {formatDateIn(lang, article.data.pubDate)} ·{' '}
-                    {t('card.minRead', { count: readingTime(article.body) })}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        );
-      })
-    }
-  </div>
+                </h2>
+                <p class="databar">
+                  <span>
+                    {inIssue.length}{' '}
+                    {inIssue.length === 1 ? t('issues.articles_one') : t('issues.articles_other')}
+                  </span>
+                  <span>{t('card.vol', { issue })}</span>
+                </p>
+              </header>
+              <ul>
+                {inIssue.map((article) => (
+                  <li>
+                    <a href={withBase(localePath(lang, `/articles/${articleSlug(article)}/`))}>
+                      {article.data.title}
+                    </a>
+                    <p class="meta">
+                      {article.data.authors.join(', ')} · {formatDateIn(lang, article.data.pubDate)} ·{' '}
+                      {t('card.minRead', { count: readingTime(article.body) })}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
+    ) : (
+      <ComingSoon lang={lang} />
+    )
+  }
 </Base>
 
 <style>

@@ -3,7 +3,6 @@ import { LOCALE_CODES } from '../../../i18n/config';
 import { langParam, useTranslations } from '../../../i18n/utils';
 import Base from '../../../layouts/Base.astro';
 import ArticleCard from '../../../components/ArticleCard.astro';
-import DemoBanner from '../../../components/DemoBanner.astro';
 import { collectIssues, getPublishedArticles, withBase } from '../../../utils/articles';
 import { issueLabelIn, localePath } from '../../../i18n/utils';
 
@@ -14,7 +13,6 @@ const t = useTranslations(lang);
 const { issue } = Astro.params;
 const { inIssue } = Astro.props;
 const label = issueLabelIn(lang, issue!);
-const hasDemo = inIssue.some((a) => a.data.demo);
 const [lead, ...rest] = inIssue;
 
 export async function getStaticPaths() {
@@ -47,8 +45,6 @@ export async function getStaticPaths() {
       <span>{t('issues.byMembers')}</span>
     </p>
   </header>
-
-  {hasDemo && <DemoBanner context="issue" lang={lang} />}
 
   <ul class="card-grid">
     {lead && <ArticleCard article={lead} headingLevel="h2" feature eager lang={lang} />}

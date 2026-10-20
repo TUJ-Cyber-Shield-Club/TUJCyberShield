@@ -25,10 +25,6 @@ const articles = defineCollection({
         coverImage: image().optional(),
         coverAlt: z.string().optional(),
         draft: z.boolean().default(false),
-        // Marks placeholder/sample content. When true, an orange "Demo" notice
-        // is shown so readers know it's a template, not a real publication.
-        // Real articles should omit this (or set it to false).
-        demo: z.boolean().default(false),
       })
       .refine((data) => !data.coverImage || (data.coverAlt && data.coverAlt.length > 0), {
         message: 'coverAlt is required whenever coverImage is set (describe the image for screen readers)',

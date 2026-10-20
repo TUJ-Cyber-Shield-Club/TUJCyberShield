@@ -3,7 +3,7 @@ import { localeStaticPaths, useTranslations } from '../../../i18n/utils';
 import Base from '../../../layouts/Base.astro';
 import ArticleCard from '../../../components/ArticleCard.astro';
 import Search from '../../../components/Search.astro';
-import DemoBanner from '../../../components/DemoBanner.astro';
+import ComingSoon from '../../../components/ComingSoon.astro';
 import { collectIssues, collectTags, getPublishedArticles, withBase } from '../../../utils/articles';
 import { issueLabelIn, localePath, tagLabel } from '../../../i18n/utils';
 
@@ -13,7 +13,7 @@ const t = useTranslations(lang);
 const articles = await getPublishedArticles(lang);
 const tags = collectTags(articles);
 const issues = collectIssues(articles); // "YYYY-MM", newest first
-const hasDemo = articles.some((a) => a.data.demo);
+const hasArticles = articles.length > 0;
 
 export const getStaticPaths = localeStaticPaths;
 ---
@@ -21,66 +21,80 @@ export const getStaticPaths = localeStaticPaths;
 <Base lang={lang} title={t('articles.title')} description={t('articles.description')}>
   <header class="masthead">
     <h1>{t('articles.h1')}</h1>
-    <p class="databar masthead-meta">
-      <span>
-        <b>{articles.length}</b>{' '}
-        {articles.length === 1 ? t('articles.count_one') : t('articles.count_other')}
-      </span>
-      <span>{t('articles.newestFirst')}</span>
-    </p>
+    {
+      hasArticles && (
+        <p class="databar masthead-meta">
+          <span>
+            <b>{articles.length}</b>{' '}
+            {articles.length === 1 ? t('articles.count_one') : t('articles.count_other')}
+          </span>
+          <span>{t('articles.newestFirst')}</span>
+        </p>
+      )
+    }
   </header>
 
-  {hasDemo && <DemoBanner context="list" lang={lang} />}
+  {
+    hasArticles ? (
+      <>
+        {/* One panel for every way to narrow the list: search on top, then topics
+            and month side by side. Labels are visually hidden — the placeholder,
+            the chips and the select's own "All dates" say what each control is. */}
+        <section class="filters" aria-label={t('articles.filters')}>
+          <Search lang={lang} />
 
-  {/* One panel for every way to narrow the list: search on top, then topics
-      and month side by side. Labels are visually hidden — the placeholder,
-      the chips and the select's own "All dates" say what each control is. */}
-  <section class="filters" aria-label={t('articles.filters')}>
-    <Search lang={lang} />
+          <div class="filter-row">
+            <nav class="tag-filter" aria-label={t('articles.filterTag.aria')}>
+              <ul class="chips">
+                <li style="display:contents">
+                  <a class="chip" href={withBase(localePath(lang, '/articles/'))} aria-current="true">
+                    {t('articles.all')}
+                  </a>
+                </li>
+                {tags.map((tag) => (
+                  <li style="display:contents">
+                    <a class="chip" href={withBase(localePath(lang, `/tags/${tag}/`))}>
+                      {tagLabel(lang, tag)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-    <div class="filter-row">
-      <nav class="tag-filter" aria-label={t('articles.filterTag.aria')}>
-        <ul class="chips">
-          <li style="display:contents">
-            <a class="chip" href={withBase(localePath(lang, '/articles/'))} aria-current="true">
-              {t('articles.all')}
-            </a>
-          </li>
-          {
-            tags.map((tag) => (
-              <li style="display:contents">
-                <a class="chip" href={withBase(localePath(lang, `/tags/${tag}/`))}>
-                  {tagLabel(lang, tag)}
-                </a>
-              </li>
-            ))
-          }
+            <div
+              class="date-filter"
+              id="date-filter-wrap"
+              hidden
+              data-status-one={t('articles.status_one')}
+              data-status-other={t('articles.status_other')}
+            >
+              <label class="visually-hidden" for="date-filter">
+                {t('articles.filterMonth')}
+              </label>
+              <select id="date-filter">
+                <option value="">{t('articles.allDates')}</option>
+                {issues.map((issue) => <option value={issue}>{issueLabelIn(lang, issue)}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <p class="meta filter-status" id="filter-status" role="status" aria-live="polite" />
+        </section>
+
+        <ul class="card-grid">
+          {articles.map((article) => (
+            <ArticleCard article={article} headingLevel="h2" lang={lang} />
+          ))}
         </ul>
-      </nav>
 
-      <div
-        class="date-filter"
-        id="date-filter-wrap"
-        hidden
-        data-status-one={t('articles.status_one')}
-        data-status-other={t('articles.status_other')}
-      >
-        <label class="visually-hidden" for="date-filter">{t('articles.filterMonth')}</label>
-        <select id="date-filter">
-          <option value="">{t('articles.allDates')}</option>
-          {issues.map((issue) => <option value={issue}>{issueLabelIn(lang, issue)}</option>)}
-        </select>
-      </div>
-    </div>
-
-    <p class="meta filter-status" id="filter-status" role="status" aria-live="polite"></p>
-  </section>
-
-  <ul class="card-grid">
-    {articles.map((article) => <ArticleCard article={article} headingLevel="h2" lang={lang} />)}
-  </ul>
-
-  <p class="meta empty-state" id="filter-empty" hidden>{t('articles.empty')}</p>
+        <p class="meta empty-state" id="filter-empty" hidden>
+          {t('articles.empty')}
+        </p>
+      </>
+    ) : (
+      <ComingSoon lang={lang} />
+    )
+  }
 </Base>
 
 <script>
