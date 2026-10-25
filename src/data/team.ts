@@ -17,13 +17,14 @@ import ruoanLi from '../assets/team/ruoan-li.jpg';
 import uchidaTerence from '../assets/team/uchida-terence.jpg';
 import bhushithGujjalaHari from '../assets/team/bhushith-gujjala-hari.jpg';
 import jasonSpond from '../assets/team/jason-spond.jpg';
+import jamesTablang from '../assets/team/james-tablang.jpg';
 
 // A circular icon button under a member's bio. `type` picks the brand logo
 // (see the ICONS map in src/components/SocialIcons.astro for supported types:
-// email, github, linkedin, instagram, x, website). For email, use a
+// email, github, linkedin, instagram, x, itchio, website). For email, use a
 // mailto: href, e.g. "mailto:you@example.com".
 export interface SocialLink {
-  type: 'email' | 'github' | 'linkedin' | 'instagram' | 'x' | 'website';
+  type: 'email' | 'github' | 'linkedin' | 'instagram' | 'x' | 'itchio' | 'website';
   href: string;
 }
 
@@ -127,6 +128,20 @@ export const team: TeamMember[] = [
     links: [
       { type: 'linkedin', href: 'https://www.linkedin.com/in/jason-spond-678677275' },
       { type: 'github', href: 'https://github.com/JodeCason' },
+    ],
+  },
+  {
+    name: 'James Tablang',
+    role: { en: 'Member', ja: 'メンバー' },
+    bio: {
+      en: "Hello, I'm James and I'm a freshman Computer Science major. In my spare time, I like to read, make coffee, and develop software. My main interests lie in computer programming, graphic design, and security systems. I have experience in AI, Robotics, Linux Ricing, and Game Development. Feel free to connect!",
+      ja: "こんにちは、James です。コンピューターサイエンスを専攻する1年生です。空いた時間には、読書やコーヒーを淹れること、ソフトウェア開発を楽しんでいます。主な関心はプログラミング、グラフィックデザイン、セキュリティシステムです。AI、ロボティクス、Linux のカスタマイズ（ライシング）、ゲーム開発の経験があります。気軽につながってください！",
+    },
+    avatar: jamesTablang,
+    links: [
+      { type: 'linkedin', href: 'https://www.linkedin.com/in/james-tablang-67b82b433/' },
+      { type: 'github', href: 'https://github.com/jtab-dev' },
+      { type: 'itchio', href: 'https://jtab-dev.itch.io/' },
     ],
   },
 ];
