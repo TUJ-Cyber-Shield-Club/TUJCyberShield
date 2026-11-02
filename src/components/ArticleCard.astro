@@ -94,6 +94,18 @@ const minutes = readingTime(article.body);
     aspect-ratio: 1200 / 630;
   }
 
+  /* Space the card's lines (file bar, title, summary, byline) evenly instead
+     of letting them stack flush. The lead story overrides this below. */
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .card-byline {
+    margin-top: 0.25rem;
+  }
+
   .card--split .card-body {
     order: 1;
     display: flex;

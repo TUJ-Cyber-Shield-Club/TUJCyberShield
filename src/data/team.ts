@@ -1,5 +1,6 @@
 import type { ImageMetadata } from 'astro';
 import { DEFAULT_LOCALE, type LocaleCode } from '../i18n/config';
+import { normalizeAuthor, slugifyName } from '../utils/articles';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EDIT ME: the club team shown on the "Meet the team" page.
@@ -18,6 +19,7 @@ import uchidaTerence from '../assets/team/uchida-terence.jpg';
 import bhushithGujjalaHari from '../assets/team/bhushith-gujjala-hari.jpg';
 import jasonSpond from '../assets/team/jason-spond.jpg';
 import jamesTablang from '../assets/team/james-tablang.jpg';
+import cassadyMead from '../assets/team/cassady-mead.jpg';
 
 // A circular icon button under a member's bio. `type` picks the brand logo
 // (see the ICONS map in src/components/SocialIcons.astro for supported types:
@@ -59,6 +61,33 @@ export interface TeamMember {
 /** Pick the text for a locale, falling back to English. */
 export function localized(field: Localized, lang: LocaleCode = DEFAULT_LOCALE): string {
   return field[lang] ?? field[DEFAULT_LOCALE];
+}
+
+/**
+ * Element id of a member's popup on the team page, e.g. "member-carl-masters".
+ * Article bylines link to /team/#<id>, which opens that popup.
+ *
+ * A name with no ASCII letters or digits (a Japanese name, say) slugifies to
+ * an empty string, and two names can slugify alike, so fall back to the row
+ * index to keep every id unique.
+ */
+export function memberSlug(member: TeamMember): string {
+  const used = new Set<string>();
+  for (const [i, m] of team.entries()) {
+    const base = slugifyName(m.name);
+    const slug = !base || used.has(base) ? `${base || 'member'}-${i}` : base;
+    used.add(slug);
+    if (m === member) return slug;
+  }
+  return slugifyName(member.name);
+}
+
+/** The team member credited by a byline (matched on name or `authorNames`), if any. */
+export function memberForAuthor(author: string): TeamMember | undefined {
+  const wanted = normalizeAuthor(author);
+  return team.find((member) =>
+    [member.name, ...(member.authorNames ?? [])].some((name) => normalizeAuthor(name) === wanted)
+  );
 }
 
 export const team: TeamMember[] = [
@@ -142,6 +171,20 @@ export const team: TeamMember[] = [
       { type: 'linkedin', href: 'https://www.linkedin.com/in/james-tablang-67b82b433/' },
       { type: 'github', href: 'https://github.com/jtab-dev' },
       { type: 'itchio', href: 'https://jtab-dev.itch.io/' },
+    ],
+  },
+  {
+    name: 'Cassady Mead',
+    role: { en: 'Member', ja: 'メンバー' },
+    bio: {
+      en: 'TUJ computer science major.',
+      ja: 'TUJ コンピューターサイエンス専攻。',
+    },
+    // Placeholder initials until a photo is supplied.
+    avatar: cassadyMead,
+    links: [
+      { type: 'linkedin', href: 'https://www.linkedin.com/in/ccmead/' },
+      { type: 'github', href: 'https://github.com/MyzTyn' },
     ],
   },
 ];

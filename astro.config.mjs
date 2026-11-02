@@ -2,6 +2,12 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { DEFAULT_LOCALE, LOCALES } from './src/i18n/config.ts';
+import { satteri } from '@astrojs/markdown-satteri';
+import {
+  compactSourceLinks,
+  externalLinksNewTab,
+  sourcesHeading,
+} from './src/utils/sources-heading.ts';
 
 // Deployed on Cloudflare Pages at the custom domain, served from the root.
 // `site` drives absolute URLs (canonical tags, sitemap, social-share images),
@@ -18,6 +24,18 @@ export default defineConfig({
     defaultLocale: DEFAULT_LOCALE,
     locales: LOCALES.map((l) => l.code),
     routing: { prefixDefaultLocale: false },
+  },
+  markdown: {
+    processor: satteri({
+      // An article's closing "## Sources" / "## References" heading is tagged
+      // so it and the list under it are styled as the reference list, where
+      // pasted full links show as their site name; links to other sites open
+      // in a new tab.
+      hastPlugins: [sourcesHeading, compactSourceLinks, externalLinksNewTab],
+      // Articles are published exactly as their authors wrote them, so no
+      // automatic "smart" quotes, dashes or ellipses (Astro's default).
+      features: { smartPunctuation: false },
+    }),
   },
   vite: {
     build: {

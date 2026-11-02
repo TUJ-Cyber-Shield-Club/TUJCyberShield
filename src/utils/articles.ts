@@ -38,7 +38,19 @@ export async function getPublishedArticles(lang: LocaleCode = DEFAULT_LOCALE): P
     else if (locale === DEFAULT_LOCALE && !inLocale.has(slug)) inLocale.set(slug, article);
   }
 
-  return [...inLocale.values()].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  return [...inLocale.values()].sort(byIssueOrder);
+}
+
+/**
+ * Newest issue first; within an issue, articles with an `order` come first in
+ * that order, then the rest newest first.
+ */
+function byIssueOrder(a: Article, b: Article): number {
+  if (a.data.issue !== b.data.issue) return b.data.issue.localeCompare(a.data.issue);
+  const ao = a.data.order ?? Infinity;
+  const bo = b.data.order ?? Infinity;
+  if (ao !== bo) return ao - bo;
+  return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
 }
 
 /**
@@ -53,6 +65,7 @@ export async function getPublishedArticles(lang: LocaleCode = DEFAULT_LOCALE): P
 export function readingTime(body: string | undefined): number {
   const text = (body ?? '')
     .replace(/^---[\s\S]*?---/, '') // strip frontmatter if present
+    .replace(/\]\([^)\s]*\)/g, ']') // a link's address isn't read, only its text
     .replace(/[#>*_`~[\]()!-]/g, ' ');
 
   const cjk = text.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u0e00-\u0e7f]/g)?.length ?? 0;
@@ -80,6 +93,15 @@ export function formatDate(date: Date): string {
   });
 }
 
+/**
+ * One issue's articles with its cover story first: the article marked
+ * `featured: true`, or the newest when none is. The rest keep their order.
+ */
+export function coverStoryFirst(issueArticles: Article[]): Article[] {
+  const cover = issueArticles.find((a) => a.data.featured) ?? issueArticles[0];
+  return cover ? [cover, ...issueArticles.filter((a) => a !== cover)] : [];
+}
+
 /** Unique issues present among the given articles, newest first. */
 export function collectIssues(articles: Article[]): string[] {
   return [...new Set(articles.map((a) => a.data.issue))].sort().reverse();
@@ -101,7 +123,7 @@ export function collectTags(articles: Article[]): string[] {
 }
 
 /** Compare bylines forgivingly: ignore case, surrounding space, and double spaces. */
-function normalizeAuthor(name: string): string {
+export function normalizeAuthor(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 

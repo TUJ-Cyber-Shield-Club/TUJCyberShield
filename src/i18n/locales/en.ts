@@ -52,7 +52,6 @@ export const en = {
   'footer.aboutClub': 'About the club',
   'footer.copyright': '© {year} TUJ Cyber Shield Club',
   'footer.byStudents': 'Written by students, for students',
-  'footer.end': 'End of transmission',
 
   // ── home ────────────────────────────────────────────────────────────────
   'home.title': 'Cyber Shield: digital safety, in plain language',
@@ -205,11 +204,13 @@ export const en = {
   'about.devP1b':
     ', a cybersecurity student at TUJ and founder of the Cyber Shield Club. The site was built to be fast, accessible, and simple enough that any club member can publish an article without writing a line of code.',
   'about.devP2a': 'If you have any questions about the website or would like to report any issues, please reach out at ',
-  'article.endTransmission': 'End of transmission',
   'article.moreFrom': 'More from the {issue} issue',
   'article.navAria': 'Article navigation',
   'article.older': 'Older',
   'article.newer': 'Newer',
+  'article.writtenBy': 'Written by',
+  'article.viewProfile': 'View profile',
+  'article.profileOf': "{name}'s profile on the team page",
   'notFound.title': 'Page not found · Cyber Shield',
   'notFound.description':
     "That page doesn't exist. Head back to the Cyber Shield home page or browse all articles.",
@@ -238,6 +239,8 @@ export const en = {
   'tag.scams': 'scams',
   'tag.wifi': 'wifi',
   'tag.privacy': 'privacy',
+  'tag.social-engineering': 'social engineering',
+  'tag.networking': 'networking',
 } satisfies Record<string, string>;
 
 /** Every key the site can ask for. Derived from `en`, so it can't drift. */

@@ -41,6 +41,7 @@ const GLYPH_FOR_TAG: [tag: string, glyph: GlyphName][] = [
   ['qr-codes', 'qr'],
   ['passkeys', 'key'],
   ['passwords', 'padlock'],
+  ['social-engineering', 'person'],
   ['phishing', 'hook'],
   ['email', 'envelope'],
   ['phones', 'phone'],

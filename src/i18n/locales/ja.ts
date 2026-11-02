@@ -30,7 +30,6 @@ export const ja: Dictionary = {
   'footer.aboutClub': 'クラブについて',
   'footer.copyright': '© {year} TUJ Cyber Shield Club',
   'footer.byStudents': '学生が、学生のために書いています',
-  'footer.end': '通信終了',
 
   'home.title': 'Cyber Shield：デジタル安全を、わかりやすい言葉で',
   'home.description':
@@ -175,11 +174,13 @@ export const ja: Dictionary = {
   'about.devP1b':
     ' です。TUJ でサイバーセキュリティを学ぶ学生で、Cyber Shield Club の創設者でもあります。高速でアクセシブルに、そしてクラブのどのメンバーもコードを書かずに記事を公開できるシンプルさを目指して作られています。',
   'about.devP2a': 'サイトについてのご質問や不具合のご報告は、次のアドレスまでお願いします：',
-  'article.endTransmission': '通信終了',
   'article.moreFrom': '{issue} 号のその他の記事',
   'article.navAria': '記事ナビゲーション',
   'article.older': '前の記事',
   'article.newer': '次の記事',
+  'article.writtenBy': '執筆',
+  'article.viewProfile': 'プロフィールを見る',
+  'article.profileOf': 'チームページの {name} のプロフィール',
   'notFound.title': 'ページが見つかりません · Cyber Shield',
   'notFound.description':
     'そのページは存在しません。Cyber Shield のホームに戻るか、記事一覧をご覧ください。',
@@ -207,4 +208,6 @@ export const ja: Dictionary = {
   'tag.scams': '詐欺',
   'tag.wifi': 'Wi-Fi',
   'tag.privacy': 'プライバシー',
+  'tag.social-engineering': 'ソーシャルエンジニアリング',
+  'tag.networking': 'ネットワーク',
 };

@@ -5,6 +5,7 @@ import { render } from 'astro:content';
 import { Image, getImage } from 'astro:assets';
 import Base from '../../../layouts/Base.astro';
 import ArticleCover from '../../../components/ArticleCover.astro';
+import { localized, memberForAuthor, memberSlug } from '../../../data/team';
 import {
   articleSlug,
   getPublishedArticles,
@@ -26,9 +27,19 @@ interface Props {
 }
 
 const { article, newer, older, sameIssue } = Astro.props;
-const { title, description, pubDate, authors, tags, issue, coverImage, coverAlt } = article.data;
+const { title, description, showDescription, pubDate, authors, tags, issue, coverImage, coverAlt } = article.data;
 const { Content } = await render(article);
 const minutes = readingTime(article.body);
+
+// Bylines that match a team member link to their popup on the team page.
+const credits = authors.map((name) => {
+  const member = memberForAuthor(name);
+  return {
+    name,
+    member,
+    href: member && withBase(localePath(lang, `/team/#member-${memberSlug(member)}`)),
+  };
+});
 
 // Share image: the author's cover if there is one, else the generated cover
 // rasterized at build time by src/pages/og/[slug].png.ts.
@@ -42,15 +53,18 @@ export async function getStaticPaths() {
   const out = [];
   for (const code of LOCALE_CODES) {
     const articles = await getPublishedArticles(code);
-    articles.forEach((article, index) => {
+    // Lists follow each issue's chosen order, but the pager's "Older/Newer"
+    // must follow publication dates to stay truthful.
+    const byDate = [...articles].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+    byDate.forEach((article, index) => {
       out.push({
         params: { lang: langParam(code), slug: articleSlug(article) },
         props: {
           lang: code,
           article,
           // articles are sorted newest first
-          newer: articles[index - 1] ?? null,
-          older: articles[index + 1] ?? null,
+          newer: byDate[index - 1] ?? null,
+          older: byDate[index + 1] ?? null,
           sameIssue: articles.filter(
             (other) => other.data.issue === article.data.issue && other.id !== article.id
           ),
@@ -73,10 +87,25 @@ export async function getStaticPaths() {
         >
         <span><time datetime={pubDate.toISOString().slice(0, 10)}>{formatDateIn(lang, pubDate)}</time></span>
         <span>{t('card.minRead', { count: minutes })}</span>
-        <span><b>{authors.join(', ')}</b></span>
+        <span>
+          {
+            credits.map((credit, i) => (
+              <>
+                {i > 0 && ', '}
+                {credit.href ? (
+                  <a class="byline-link" href={credit.href}>
+                    <b>{credit.name}</b>
+                  </a>
+                ) : (
+                  <b>{credit.name}</b>
+                )}
+              </>
+            ))
+          }
+        </span>
       </p>
       <h1>{title}</h1>
-      <p class="lede">{description}</p>
+      {showDescription && <p class="lede">{description}</p>}
       {
         tags.length > 0 && (
           <ul class="chips" aria-label={t('article.tags')} data-pagefind-ignore>
@@ -106,7 +135,44 @@ export async function getStaticPaths() {
       <Content />
     </div>
 
-    <p class="endmark databar" aria-hidden="true"><span>◼ ◼ ◼</span><span>{t('article.endTransmission')}</span></p>
+    <section class="credits" aria-labelledby="credits-heading" data-pagefind-ignore>
+      <h2 class="kick kick--lead" id="credits-heading">{t('article.writtenBy')}</h2>
+      <ul>
+        {
+          credits.map(({ name, member, href }) =>
+            member && href ? (
+              <li>
+                <a class="credit" href={href} aria-label={t('article.profileOf', { name })}>
+                  <Image
+                    class="credit-avatar"
+                    src={member.avatar}
+                    alt=""
+                    width="128"
+                    height="128"
+                    fit="cover"
+                    loading="lazy"
+                  />
+                  <span class="credit-text">
+                    <span class="credit-name">{name}</span>
+                    <span class="credit-role">{localized(member.role, lang)}</span>
+                    <span class="credit-cta">{t('article.viewProfile')} →</span>
+                  </span>
+                </a>
+              </li>
+            ) : (
+              <li>
+                <div class="credit credit--plain">
+                  <span class="credit-avatar credit-initial" aria-hidden="true">{name.trim().charAt(0)}</span>
+                  <span class="credit-text">
+                    <span class="credit-name">{name}</span>
+                  </span>
+                </div>
+              </li>
+            )
+          )
+        }
+      </ul>
+    </section>
   </article>
 
   {
@@ -272,17 +338,105 @@ export async function getStaticPaths() {
     color: var(--accent);
   }
 
-  .endmark {
-    justify-content: center;
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--line);
-    letter-spacing: 0.2em;
+  .byline-link {
+    color: inherit;
+    text-decoration: none;
   }
 
-  .endmark span:first-child {
+  .byline-link:hover b {
+    color: var(--accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
+  }
+
+  .credits {
+    margin-top: 3.5rem;
+  }
+
+  .credits ul {
+    list-style: none;
+    margin: 1.2rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr));
+  }
+
+  .credit {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg-raised);
+    box-shadow: var(--edge-highlight), var(--shadow-rest);
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+
+  a.credit:hover {
+    border-color: var(--accent-line);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a.credit:hover {
+      box-shadow: var(--edge-highlight), var(--shadow);
+      transform: translateY(-2px);
+    }
+  }
+
+  .credit-avatar {
+    flex: none;
+    width: 3.6rem;
+    height: 3.6rem;
+    border-radius: 50%;
+    border: 1px solid var(--accent-line);
+    object-fit: cover;
+  }
+
+  .credit-initial {
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
     color: var(--accent);
-    letter-spacing: 0.35em;
+    background: var(--bg-inset);
+  }
+
+  .credit-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .credit-name {
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .credit-role {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .credit-cta {
+    margin-top: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  a.credit:hover .credit-name {
+    color: var(--accent-strong);
   }
 
   .related,

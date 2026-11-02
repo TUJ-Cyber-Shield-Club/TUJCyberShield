@@ -5,7 +5,7 @@ import ArticleCard from '../../components/ArticleCard.astro';
 import ComingSoon from '../../components/ComingSoon.astro';
 import JoinPanel from '../../components/JoinPanel.astro';
 import CrestHero from '../../components/CrestHero.astro';
-import { collectIssues, collectTags, getPublishedArticles, withBase } from '../../utils/articles';
+import { collectIssues, collectTags, coverStoryFirst, getPublishedArticles, withBase } from '../../utils/articles';
 import { issueLabelIn, localePath, tagLabel } from '../../i18n/utils';
 
 const { lang } = Astro.props;
@@ -14,7 +14,7 @@ const t = useTranslations(lang);
 const articles = await getPublishedArticles(lang);
 const latestIssue = articles[0]?.data.issue;
 const latestIssueArticles = articles.filter((a) => a.data.issue === latestIssue);
-const [coverStory, ...restOfIssue] = latestIssueArticles;
+const [coverStory, ...restOfIssue] = coverStoryFirst(latestIssueArticles);
 const earlier = articles.filter((a) => a.data.issue !== latestIssue).slice(0, 6);
 const hasArticles = articles.length > 0;
 const issues = collectIssues(articles);
@@ -211,14 +211,20 @@ export const getStaticPaths = localeStaticPaths;
   .ledger {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 2.5rem;
-    padding-block: 0.95rem;
+    gap: 0.5rem 2.5rem;
+    padding-block: 1.2rem;
     border-block: 1px solid var(--line);
     font-family: var(--font-mono);
     font-size: 0.72rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text-muted);
+  }
+
+  /* Room between the ruled strip and the section heading below it, so the
+     two hairlines don't stack on top of each other. */
+  .ledger + * {
+    margin-top: clamp(2.5rem, 6vw, 3.75rem);
   }
 
   .ledger b {
@@ -306,9 +312,6 @@ export const getStaticPaths = localeStaticPaths;
 
     .hero-crest {
       order: -1;
-      align-items: flex-start;
-      justify-self: start;
     }
-
   }
 </style>

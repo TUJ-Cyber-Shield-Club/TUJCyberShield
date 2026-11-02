@@ -3,7 +3,7 @@ import { LOCALE_CODES } from '../../../i18n/config';
 import { langParam, useTranslations } from '../../../i18n/utils';
 import Base from '../../../layouts/Base.astro';
 import ArticleCard from '../../../components/ArticleCard.astro';
-import { collectIssues, getPublishedArticles, withBase } from '../../../utils/articles';
+import { collectIssues, coverStoryFirst, getPublishedArticles, withBase } from '../../../utils/articles';
 import { issueLabelIn, localePath } from '../../../i18n/utils';
 
 const { lang } = Astro.props;
@@ -13,7 +13,7 @@ const t = useTranslations(lang);
 const { issue } = Astro.params;
 const { inIssue } = Astro.props;
 const label = issueLabelIn(lang, issue!);
-const [lead, ...rest] = inIssue;
+const [lead, ...rest] = coverStoryFirst(inIssue);
 
 export async function getStaticPaths() {
   const out = [];

@@ -381,8 +381,21 @@ a.chip:hover {
 /* Opt-in trailing arrow, as real markup rather than a ::after forced onto
    every button — it belongs on "go forward" actions, not on all of them.
    Usage: <a class="button">Label <span class="button-arrow" aria-hidden="true">→</span></a> */
+/* A drawn arrow (SVG mask filled with the button's text colour) rather than
+   the "→" glyph, which renders thin and tiny in the mono font. The glyph stays
+   in the markup as a fallback and is pushed out of view. */
 .button-arrow {
-  font-family: var(--font-mono);
+  display: inline-block;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.22em;
+  overflow: hidden;
+  text-indent: 200%;
+  white-space: nowrap;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12h14.5M13 5.75 19.25 12 13 18.25'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12h14.5M13 5.75 19.25 12 13 18.25'/%3E%3C/svg%3E") center / contain no-repeat;
   transition: transform var(--dur) var(--ease-out);
 }
 
@@ -399,6 +412,8 @@ a.chip:hover {
   font-size: 1.125rem;
   line-height: 1.78;
   max-width: 65ch;
+  /* Long URLs and commands wrap instead of pushing the page sideways on phones. */
+  overflow-wrap: break-word;
 }
 
 .prose > * + * {
@@ -506,11 +521,54 @@ a.chip:hover {
   font-weight: 650;
 }
 
+/* An indented passage, as the writer laid it out (<div class="indent"> in the
+   Markdown). Unlike a blockquote it isn't a quotation, so no rule or italics. */
+.prose .indent {
+  padding-left: 1.6em;
+}
+
+.prose .indent > * + * {
+  margin-top: 1.15em;
+}
+
+/* The article's reference list: a closing "## Sources" or "## References"
+   heading (tagged by src/utils/sources-heading.ts) and everything after it. */
+.prose .sources-heading {
+  margin-top: 3.2em;
+  padding-top: 1.6em;
+  border-top: 1px solid var(--line);
+  font-size: 1.05rem;
+}
+
+.prose .sources-heading ~ * {
+  font-size: 0.86rem;
+  line-height: 1.62;
+  color: var(--text-muted);
+}
+
+.prose .sources-heading ~ * a {
+  overflow-wrap: anywhere;
+}
+
+.prose .sources-heading ~ * li + li {
+  margin-top: 0.75em;
+}
+
+/* Unnumbered reference lists get bibliography-style hanging indents. */
+.prose .sources-heading ~ ul {
+  list-style: none;
+  padding-left: 1.8em;
+}
+
+.prose .sources-heading ~ ul > li {
+  text-indent: -1.8em;
+}
+
 /* --- cards ------------------------------------------------------------------------ */
 
 .card-grid {
   display: grid;
-  gap: 1.4rem;
+  gap: 1.75rem;
   grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
   margin: 0;
   padding: 0;

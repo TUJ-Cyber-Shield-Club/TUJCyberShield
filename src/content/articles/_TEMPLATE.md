@@ -12,6 +12,12 @@ title: "Your headline here"
 # search engines, and social previews. (required)
 description: "One-sentence summary of the article, 160 characters or fewer."
 
+# The description is also shown under the headline on the article page.
+# If it isn't the author's own words (say, a card summary written by an
+# editor), set this to false and it will only appear on cards and in search.
+# (optional, defaults to true)
+# showDescription: false
+
 # Publication date, YYYY-MM-DD. (required)
 pubDate: 2026-09-01
 
@@ -19,7 +25,8 @@ pubDate: 2026-09-01
 authors: ["Your Name", "Co-Author Name"]
 
 # Topic tags, lowercase. Reuse existing tags when possible:
-# phishing, passwords, scams, privacy, social-media, email, phones, wifi, accounts, qr-codes
+# phishing, passwords, scams, privacy, social-engineering, networking, email,
+# phones, wifi, accounts, qr-codes
 tags: ["phishing", "email"]
 
 # Which monthly issue this belongs to, as "YYYY-MM". (required)
@@ -31,6 +38,14 @@ issue: "2026-09"
 # it in coverAlt (required if you use coverImage).
 # coverImage: ../../../assets/my-cover.jpg
 # coverAlt: "A student scanning a QR code on a flyer"
+
+# OPTIONAL: true makes this the issue's cover story on the home page and the
+# issue page. Use it on one article per issue; otherwise the newest one leads.
+# featured: true
+
+# OPTIONAL: this article's position within its issue (1 = first) on the home
+# page, article list and issue page. Unnumbered articles follow, newest first.
+# order: 2
 
 # Keep true while writing; the article stays off the live site.
 # Change to false when it's ready to publish.
@@ -55,3 +70,10 @@ for emphasis, *italics* for titles or light stress.
 > Indented quotes look like this. Good for "here's what the scam email said."
 
 End with something actionable: what should the reader do today?
+
+## Sources
+
+1. A heading named "Sources" or "References" turns everything below it into
+   the article's reference list, styled smaller at the end of the page.
+2. Paste full links (https://...) and they become clickable, shown as just the
+   site's name (e.g. cisa.gov).
