@@ -177,10 +177,9 @@ export const team: TeamMember[] = [
     name: 'Cassady Mead',
     role: { en: 'Member', ja: 'メンバー' },
     bio: {
-      en: 'TUJ computer science major.',
-      ja: 'TUJ コンピューターサイエンス専攻。',
+      en: 'Hello, I am a computer science major here at TUJ. Feel free to connect with me via the links below!',
+      ja: 'こんにちは。TUJ でコンピューターサイエンスを専攻しています。下のリンクからお気軽につながってください！',
     },
-    // Placeholder initials until a photo is supplied.
     avatar: cassadyMead,
     links: [
       { type: 'linkedin', href: 'https://www.linkedin.com/in/ccmead/' },
